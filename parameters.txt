@@ -1,0 +1,5 @@
+value1   = 1.5
+value2   = 2.6
+value3   = StringTest
+value4   = 4.8
+value5   = 16
