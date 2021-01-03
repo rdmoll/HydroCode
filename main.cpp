@@ -25,20 +25,22 @@ int main( int argc, const char * argv[] )
   
   double pi = std::acos(-1.0);
   
-  size_t N = 16;
-  int nOut = std::floor( N / 2 + 1 );
+  size_t Nx = 16;
+  size_t Ny = 16;
+  int nOutX = std::floor( Nx / 2 + 1 );
+  int nOutY = std::floor( Ny / 2 + 1 );
   size_t nSteps = 10;
   double fac1 = 0.01;
   double fac2 = 0.0;
   
-  std::vector< double > T0_phys( N, 0.0 );
-  for( int i = 0; i < N; i++ )
+  std::vector< double > T0_phys( Nx, 0.0 );
+  for( int i = 0; i < Nx; i++ )
   {
-    T0_phys[ i ] = std::cos( i * ( 2 * pi / N ) );
+    T0_phys[ i ] = std::cos( i * ( 2 * pi / Nx ) );
   }
   
-  std::vector< double > T1_phys( N, 0.0 );
-  std::vector< std::complex< double > > T_spec( nOut, std::complex< double >( 0.0, 0.0 ) );
+  std::vector< double > T1_phys( Nx, 0.0 );
+  std::vector< std::complex< double > > T_spec( nOutX, std::complex< double >( 0.0, 0.0 ) );
   
   hydroCode::FourierTransforms fft;
   
@@ -46,7 +48,7 @@ int main( int argc, const char * argv[] )
   
   for( size_t j = 0; j < nSteps; j++ )
   {
-    for( size_t i = 1; i < nOut; i++ )
+    for( size_t i = 1; i < nOutX; i++ )
     {
       T_spec[ i ] /= ( 1.0 + fac1 * 2.0 * pi * i * std::complex< double >( 0.0, 1.0 )
                            + fac2 * 4.0 * pi * pi * i * i );
@@ -55,17 +57,25 @@ int main( int argc, const char * argv[] )
   
   fft.fft_c2r( T_spec, T1_phys );
   
-  for( int i = 0; i < N; i++ )
+  for( int i = 0; i < Nx; i++ )
   {
     std::cout << T0_phys[ i ] << " --> " << T1_phys[ i ] / 16.0 << std::endl;
   }
   
+  std::vector< std::vector< double > > T_write( Nx, std::vector< double >( Ny, 0.0 ) );
+  for( int i = 0; i < Nx; i++ )
+  {
+    for( int j = 0; j < Ny; j++ )
+    {
+      T_write[ i ][ j ] = T1_phys[ i ];
+    }
+  }
+  
   // Write netCDF data
-  std::vector< std::vector< double > > testData( 10, std::vector< double >( 10, 0.0 ) );
-  io::ioNetCDF testWriter( "/Users/rmoll/Desktop/test_class_xy.nc", "data", 10, 10 );
-  testWriter.write( 0, testData );
-  testWriter.write( 1, testData );
-  testWriter.write( 2, testData );
+  io::ioNetCDF testWriter( "/Users/rmoll/Desktop/test_AdvDiff_xy.nc", "data", Nx, Ny );
+  testWriter.write( 0, T_write );
+  testWriter.write( 1, T_write );
+  testWriter.write( 2, T_write );
 
   return 0;
 }
