@@ -30,6 +30,8 @@ public:
   
   void fft_r2c( std::vector< double > &inVec, std::vector< std::complex< double > > &outVec );
   void fft_r2c( );
+  void fft_r2c_2d( std::vector< double > &rVec, std::vector< std::vector< std::complex< double > > > &cVec );
+  
   void fft_c2r( std::vector< std::complex< double > > &inVec, std::vector< double > &outVec );
   void fft_c2r( );
   

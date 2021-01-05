@@ -101,6 +101,11 @@ void FourierTransforms::fft_r2c( std::vector< double > &rVec, std::vector< std::
   fftw_free( out );
 }
 
+void FourierTransforms::fft_r2c_2d( std::vector< double > &rVec,
+                                    std::vector< std::vector< std::complex< double > > > &cVec )
+{
+}
+
 void FourierTransforms::fft_c2r( )
 {
   try
