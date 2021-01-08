@@ -87,8 +87,7 @@ void FourierTransforms::fft_r2c( std::vector< double > &rVec, std::vector< std::
     in[ i ] = rVec[ i ];
   }
 
-  fftw_plan plan;
-  plan = fftw_plan_dft_r2c_1d( N, &in[0], &out[0], FFTW_ESTIMATE );
+  fftw_plan plan = fftw_plan_dft_r2c_1d( N, &in[0], &out[0], FFTW_ESTIMATE );
   fftw_execute( plan );
   
   for( int i = 0 ; i < nOut ; i++ )
@@ -101,9 +100,37 @@ void FourierTransforms::fft_r2c( std::vector< double > &rVec, std::vector< std::
   fftw_free( out );
 }
 
-void FourierTransforms::fft_r2c_2d( std::vector< double > &rVec,
+void FourierTransforms::fft_r2c_2d( int N, int M,
+                                    std::vector< std::vector< double > > &rVec,
                                     std::vector< std::vector< std::complex< double > > > &cVec )
 {
+  size_t size = sizeof( double ) * N * M;
+  double* in = ( double* ) fftw_malloc( size );
+  fftw_complex* out = ( fftw_complex* ) fftw_malloc( sizeof( fftw_complex ) * N * ( M / 2 + 1 ) );
+  
+  for( size_t i = 0; i < N; i++ )
+  {
+    for( size_t j = 0; j < M; j++ )
+    {
+      in[ M * i + j ] = rVec[ i ][ j ];
+    }
+  }
+  
+  fftw_plan plan = fftw_plan_dft_r2c_2d( N, M, in, out, FFTW_ESTIMATE );
+  fftw_execute( plan );
+  
+  for( size_t i = 0; i < N; i++ )
+  {
+    for( size_t j = 0; j < ( M / 2 + 1 ); j++ )
+    {
+      size_t index = ( M / 2 + 1 ) * i + j;
+      cVec[ i ][ j ] = std::complex< double >( out[ index ][ 0 ], out[ index ][ 1 ] );
+    }
+  }
+  
+  fftw_destroy_plan( plan );
+  fftw_free( in );
+  fftw_free( out );
 }
 
 void FourierTransforms::fft_c2r( )
