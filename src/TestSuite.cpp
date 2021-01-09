@@ -25,14 +25,14 @@ void TestSuite::testReadParams()
   std::cout << "testReadParams         : ";
   
   const char* delimiter = "=";
-  const char* filename = "/Users/rmoll/Documents/dev/projects/HydroCode/parameters.txt";
-  io::ReadParams parameterFile( filename,delimiter );
+  const char* filename = "/Users/rmoll/Documents/dev/projects/HydroCode/HydroCode/parameters.txt";
+  io::ReadParams parameterFile( filename, delimiter );
   
-  double value1 = parameterFile.dParam["value1"];
-  double value2 = parameterFile.dParam["value2"];
-  std::string value3 = parameterFile.strParam["value3"];
-  double value4 = parameterFile.dParam["value4"];
-  int value5 = parameterFile.iParam["value5"];
+  double value1 = parameterFile.dParam[ "value1" ];
+  double value2 = parameterFile.dParam[ "value2" ];
+  std::string value3 = parameterFile.strParam[ "value3" ];
+  double value4 = parameterFile.dParam[ "value4" ];
+  int value5 = parameterFile.iParam[ "value5" ];
   
   if( value1 != 1.5)
   {

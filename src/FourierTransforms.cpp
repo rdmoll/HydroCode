@@ -105,6 +105,7 @@ void FourierTransforms::fft_r2c_2d( int N, int M,
                                     std::vector< std::vector< std::complex< double > > > &cVec )
 {
   size_t size = sizeof( double ) * N * M;
+  
   double* in = ( double* ) fftw_malloc( size );
   fftw_complex* out = ( fftw_complex* ) fftw_malloc( sizeof( fftw_complex ) * N * ( M / 2 + 1 ) );
   
@@ -166,6 +167,41 @@ void FourierTransforms::fft_c2r( std::vector< std::complex< double > > &cVec, st
   for( int i = 0 ; i < N ; i++ )
   {
     rVec[ i ] = out[ i ];
+  }
+  
+  fftw_destroy_plan( plan );
+  fftw_free( in );
+  fftw_free( out );
+}
+
+void FourierTransforms::fft_c2r_2d( int N, int M,
+                                    std::vector< std::vector< std::complex< double > > > &cVec,
+                                    std::vector< std::vector< double > > &rVec )
+{
+  size_t size = sizeof( double ) * N * M;
+  
+  fftw_complex* in = ( fftw_complex* ) fftw_malloc( sizeof( fftw_complex ) * N * ( M / 2 + 1 ) );
+  double* out = ( double* ) fftw_malloc( size );
+  
+  for( size_t i = 0; i < N; i++ )
+  {
+    for( size_t j = 0; j < ( M / 2 + 1 ); j++ )
+    {
+      size_t index = ( M / 2 + 1 ) * i + j;
+      in[ index ][ 0 ] = cVec[ i ][ j ].real();
+      in[ index ][ 1 ] = cVec[ i ][ j ].imag();
+    }
+  }
+  
+  fftw_plan plan = fftw_plan_dft_c2r_2d( N, M, in, out, FFTW_ESTIMATE );
+  fftw_execute( plan );
+  
+  for( size_t i = 0; i < N; i++ )
+  {
+    for( size_t j = 0; j < M; j++ )
+    {
+      rVec[ i ][ j ] = out[ M * i + j ];
+    }
   }
   
   fftw_destroy_plan( plan );

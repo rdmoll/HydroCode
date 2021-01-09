@@ -28,14 +28,17 @@ public:
   double* realArray;
   fftw_complex* compArray;
   
-  void fft_r2c( std::vector< double > &inVec, std::vector< std::complex< double > > &outVec );
+  void fft_r2c( std::vector< double > &rVec, std::vector< std::complex< double > > &cVec );
   void fft_r2c( );
-  void fft_r2c_2d( int n, int m,
+  void fft_r2c_2d( int N, int M,
                    std::vector< std::vector< double > > &rVec,
                    std::vector< std::vector< std::complex< double > > > &cVec );
   
-  void fft_c2r( std::vector< std::complex< double > > &inVec, std::vector< double > &outVec );
+  void fft_c2r( std::vector< std::complex< double > > &cVec, std::vector< double > &rVec );
   void fft_c2r( );
+  void fft_c2r_2d( int N, int M,
+                   std::vector< std::vector< std::complex< double > > > &cVec,
+                   std::vector< std::vector< double > > &rVec );
   
 protected:
   fftw_plan plan_r2c;

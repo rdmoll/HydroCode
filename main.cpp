@@ -87,6 +87,7 @@ int main( int argc, const char * argv[] )
   
   // Testing 2D FFT
   std::vector< std::vector< double > > realTest( Nx, std::vector< double >( Ny, 0.0 ) );
+  std::vector< std::vector< double > > realTestNew( Nx, std::vector< double >( Ny, 0.0 ) );
   std::vector< std::vector< std::complex< double > > >
     complexTest( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
   
@@ -99,7 +100,6 @@ int main( int argc, const char * argv[] )
     }
     std::cout << std::endl;
   }
-  
   std::cout << std::endl;
   
   fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, realTest, complexTest );
@@ -109,6 +109,18 @@ int main( int argc, const char * argv[] )
     for( int j = 0; j < nOutY; j++ )
     {
       std::cout << complexTest[ i ][ j ] << "  ";
+    }
+    std::cout << std::endl;
+  }
+  std::cout << std::endl;
+  
+  fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, complexTest, realTestNew );
+  
+  for( int i = 0; i < Nx; i++ )
+  {
+    for( int j = 0; j < Ny; j++ )
+    {
+      std::cout << realTestNew[ i ][ j ] / ( Nx * Ny ) << ",";
     }
     std::cout << std::endl;
   }
