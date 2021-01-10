@@ -19,10 +19,12 @@ int main( int argc, const char * argv[] )
   unitTests.testReadParams();
   unitTests.testFourierTransforms1();
   unitTests.testFourierTransforms2();
+  unitTests.testFourierTransforms_2D();
   unitTests.testDeriv();
   unitTests.testDeriv2();
   std::cout << std::endl;
   
+  // Solve simple equation
   double pi = std::acos(-1.0);
   
   size_t Nx = 8; //16;
@@ -83,46 +85,6 @@ int main( int argc, const char * argv[] )
     
     // Write netCDF data
     testWriter.write( t + 1, T_write );
-  }
-  
-  // Testing 2D FFT
-  std::vector< std::vector< double > > realTest( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< double > > realTestNew( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< std::complex< double > > >
-    complexTest( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  
-  for( int i = 0; i < Nx; i++ )
-  {
-    for( int j = 0; j < Ny; j++ )
-    {
-      realTest[ i ][ j ] = std::cos( i * ( 2 * pi / Nx ) ) * std::cos( j * ( 2 * pi / Ny ) );
-      std::cout << realTest[ i ][ j ] << ",";
-    }
-    std::cout << std::endl;
-  }
-  std::cout << std::endl;
-  
-  fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, realTest, complexTest );
-  
-  for( int i = 0; i < Nx; i++ )
-  {
-    for( int j = 0; j < nOutY; j++ )
-    {
-      std::cout << complexTest[ i ][ j ] << "  ";
-    }
-    std::cout << std::endl;
-  }
-  std::cout << std::endl;
-  
-  fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, complexTest, realTestNew );
-  
-  for( int i = 0; i < Nx; i++ )
-  {
-    for( int j = 0; j < Ny; j++ )
-    {
-      std::cout << realTestNew[ i ][ j ] / ( Nx * Ny ) << ",";
-    }
-    std::cout << std::endl;
   }
   
   return 0;
