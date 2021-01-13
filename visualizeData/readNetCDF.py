@@ -7,9 +7,10 @@ test = netCDF4.Dataset("/Users/rmoll/Desktop/test_AdvDiff_xy.nc",'r')
 dataMasked = test.variables['data']
 data = dataMasked[:,:,:]
 dataCol0 = data[0,:,0]
-dataCol1 = data[1,:,0]
-dataCol2 = data[2,:,0]
-dataCol3 = data[3,:,0]
+dataCol1 = data[9,:,0]
+dataCol2 = data[19,:,0]
+dataCol3 = data[29,:,0]
+dataCol4 = data[39,:,0]
 
 #plt.figure(1)
 #twoDPlot = plt.imshow(data[0,:,:])
@@ -18,6 +19,7 @@ oneDPlot0 = plt.plot(dataCol0)
 oneDPlot1 = plt.plot(dataCol1)
 oneDPlot2 = plt.plot(dataCol2)
 oneDPlot3 = plt.plot(dataCol3)
+oneDPlot4 = plt.plot(dataCol4)
 plt.show()
 #plt.imshow(data[1,:,:])
 #plt.plot(dataCol)

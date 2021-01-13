@@ -27,11 +27,11 @@ int main( int argc, const char * argv[] )
   // Solve simple equation
   double pi = std::acos(-1.0);
   
-  size_t Nx = 16;
-  size_t Ny = 16;
+  size_t Nx = 64;
+  size_t Ny = 64;
   int nOutX = std::floor( Nx / 2 + 1 );
   int nOutY = std::floor( Ny / 2 + 1 );
-  size_t nSteps = 4;
+  size_t nSteps = 40;
   double fac1 = 0.01;
   double fac2 = 0.001;
   
@@ -57,12 +57,21 @@ int main( int argc, const char * argv[] )
   {
     fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, T0_phys, T_spec );
     
-    for( int i = 0 ; i < Nx ; i++ )
+    for( int i = 0 ; i < nOutX ; i++ )
     {
       for( int j = 0 ; j < nOutY ; j++ )
       {
-        T_spec[ i ][ j ] /= ( 1.0 + fac1 * i * std::complex< double >( 0.0, 1.0 )
+        T_spec[ i ][ j ] /= ( 1.0 - fac1 * 2.0 * pi * i * std::complex< double >( 0.0, 1.0 )
                             + fac2 * 4.0 * pi * pi * i * i );
+      }
+    }
+    
+    for( int i = nOutX ; i < Nx ; i++ )
+    {
+      for( int j = 0 ; j < nOutY ; j++ )
+      {
+        T_spec[ i ][ j ] /= ( 1.0 + fac1 * 2.0 * pi * ( Nx - i ) * std::complex< double >( 0.0, 1.0 )
+                            + fac2 * 4.0 * pi * pi * ( Nx - i ) * ( Nx - i ) );
       }
     }
     
