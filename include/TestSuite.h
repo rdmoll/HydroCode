@@ -12,6 +12,7 @@
 #include "FourierTransforms.h"
 #include "ReadParams.h"
 #include "Derivatives.h"
+#include "ioNetCDF.h"
 
 namespace diagnostics
 {
@@ -25,8 +26,11 @@ public:
   void testReadParams();
   void testFourierTransforms1();
   void testFourierTransforms2();
+  void testFourierTransforms_2D();
   void testDeriv();
   void testDeriv2();
+  
+  void simpleAdvDiff( size_t nSteps, double deltaT, size_t Nx, size_t Ny, double c, double nu );
 };
 
 } // diagnostics

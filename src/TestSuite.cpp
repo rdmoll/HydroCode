@@ -22,7 +22,7 @@ TestSuite::~TestSuite()
 
 void TestSuite::testReadParams()
 {
-  std::cout << "testReadParams         : ";
+  std::cout << "testReadParams           : ";
   
   const char* delimiter = "=";
   const char* filename = "/Users/rmoll/Documents/dev/projects/HydroCode/HydroCode/parameters.txt";
@@ -34,13 +34,13 @@ void TestSuite::testReadParams()
   double value4 = parameterFile.dParam[ "value4" ];
   int value5 = parameterFile.iParam[ "value5" ];
   
-  if( value1 != 1.5)
+  if( value1 != 1.5 )
   {
     std::cout << "FAIL" << std::endl;
     return;
   }
   
-  if( value2 != 2.6)
+  if( value2 != 2.6 )
   {
     std::cout << "FAIL" << std::endl;
     return;
@@ -52,13 +52,13 @@ void TestSuite::testReadParams()
     return;
   }
   
-  if( value4 != 4.8)
+  if( value4 != 4.8 )
   {
     std::cout << "FAIL" << std::endl;
     return;
   }
   
-  if( value5 != 16)
+  if( value5 != 16 )
   {
     std::cout << "FAIL" << std::endl;
     return;
@@ -109,8 +109,8 @@ void TestSuite::testFourierTransforms1()
   }
   realMSE /= N;
   
-  std::cout << "testFourierTransforms1 : complex sigma = " << std::sqrt( compMSE ) << " , " <<
-                                         "real sigma = " << std::sqrt( realMSE ) << std::endl;
+  std::cout << "testFourierTransforms1   : complex sigma = " << std::sqrt( compMSE ) << " , " <<
+                                             "real sigma = " << std::sqrt( realMSE ) << std::endl;
 }
 
 void TestSuite::testFourierTransforms2()
@@ -152,8 +152,66 @@ void TestSuite::testFourierTransforms2()
   }
   realMSE /= N;
   
-  std::cout << "testFourierTransforms2 : complex sigma = " << std::sqrt( compMSE ) << " , " <<
-                                         "real sigma = " << std::sqrt( realMSE ) << std::endl;
+  std::cout << "testFourierTransforms2   : complex sigma = " << std::sqrt( compMSE ) << " , " <<
+                                            "real sigma = " << std::sqrt( realMSE ) << std::endl;
+}
+
+void TestSuite::testFourierTransforms_2D()
+{
+  double pi = std::acos(-1.0);
+  
+  size_t Nx = 16;
+  size_t Ny = 16;
+  //int nOutX = std::floor( Nx / 2 + 1 );
+  int nOutY = std::floor( Ny / 2 + 1 );
+  
+  std::vector< std::vector< double > > realTruth( Nx, std::vector< double >( Ny, 0.0 ) );
+  std::vector< std::vector< double > > realTest( Nx, std::vector< double >( Ny, 0.0 ) );
+  std::vector< std::vector< std::complex< double > > >
+    compTruth( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
+  std::vector< std::vector< std::complex< double > > >
+    compTest( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
+  
+  hydroCode::FourierTransforms fft;
+  
+  for( int i = 0; i < Nx; i++ )
+  {
+    for( int j = 0; j < Ny; j++ )
+    {
+      realTruth[ i ][ j ] = std::cos( i * ( 2 * pi / Nx ) ) * std::cos( j * ( 2 * pi / Ny ) );
+    }
+  }
+  
+  compTruth[ 1 ][ 1 ] = std::complex< double >( 1.0, 0.0 );
+  compTruth[ Nx - 1 ][ 1 ] = std::complex< double >( 1.0, 0.0 );
+  
+  fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, realTruth, compTest );
+  
+  double compMSE = 0.0;
+  for( int i = 0 ; i < Nx ; i++ )
+  {
+    for( int j = 0 ; j < nOutY ; j++ )
+    {
+      compMSE = compMSE + std::pow( compTruth[ i ][ j ].real() - compTest[ i ][ j ].real() / 64, 2.0 )
+                        + std::pow( compTruth[ i ][ j ].imag() - compTest[ i ][ j ].imag() / 64, 2.0 );
+    }
+  }
+  compMSE /= 2.0 * Nx * nOutY;
+  
+  fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, compTest, realTest );
+  
+  double realMSE = 0.0;
+  for( int i = 0; i < Nx; i++ )
+  {
+    for( int j = 0; j < Ny; j++ )
+    {
+      realMSE += std::pow( realTruth[ i ][ j ] - realTest[ i ][ j ] / ( Nx * Ny ), 2.0 );
+    }
+  }
+  realMSE /= ( Nx * Ny );
+  
+  std::cout << "testFourierTransforms_2D : complex sigma = " << std::sqrt( compMSE ) << " , " <<
+                                             "real sigma = " << std::sqrt( realMSE ) << std::endl;
 }
 
 void TestSuite::testDeriv()
@@ -189,7 +247,7 @@ void TestSuite::testDeriv()
   }
   mse /= N;
   
-  std::cout << "testDeriv              : sigma = " << std::sqrt( mse ) << std::endl;
+  std::cout << "testDeriv                : sigma = " << std::sqrt( mse ) << std::endl;
 }
 
 void TestSuite::testDeriv2()
@@ -225,7 +283,71 @@ void TestSuite::testDeriv2()
   }
   mse /= N;
   
-  std::cout << "testDeriv2             : sigma = " << std::sqrt( mse ) << std::endl;
+  std::cout << "testDeriv2               : sigma = " << std::sqrt( mse ) << std::endl;
+}
+
+void TestSuite::simpleAdvDiff( size_t nSteps, double deltaT, size_t Nx, size_t Ny, double c, double nu )
+{
+  double pi = std::acos(-1.0);
+  
+  int nOutX = std::floor( Nx / 2 + 1 );
+  int nOutY = std::floor( Ny / 2 + 1 );
+  double fac1 = 2.0 * pi * deltaT * c;
+  double fac2 = 4.0 * pi * pi * deltaT * nu;
+  
+  std::vector< std::vector< double > > T0_phys( Nx, std::vector< double >( Ny, 0.0 ) );
+  std::vector< std::vector< double > > T1_phys( Nx, std::vector< double >( Ny, 0.0 ) );
+  std::vector< std::vector< std::complex< double > > >
+    T_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
+  
+  hydroCode::FourierTransforms fft;
+  io::ioNetCDF testWriter( "/Users/rmoll/Desktop/test_AdvDiff_xy.nc", "data", Nx, Ny );
+  
+  for( int i = 0; i < Nx; i++ )
+  {
+    for( int j = 0; j < Ny; j++ )
+    {
+      T0_phys[ i ][ j ] = std::cos( i * ( 2 * pi / Nx ) );
+    }
+  }
+  testWriter.write( 0, T0_phys );
+  
+  // Starting time step loop
+  for( size_t t = 0; t < nSteps; t++ )
+  {
+    fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, T0_phys, T_spec );
+    
+    for( int i = 0 ; i < nOutX ; i++ )
+    {
+      for( int j = 0 ; j < nOutY ; j++ )
+      {
+        T_spec[ i ][ j ] /= ( 1.0 - fac1 * i * std::complex< double >( 0.0, 1.0 )
+                            + fac2 * i * i );
+      }
+    }
+    
+    for( int i = nOutX ; i < Nx ; i++ )
+    {
+      for( int j = 0 ; j < nOutY ; j++ )
+      {
+        T_spec[ i ][ j ] /= ( 1.0 + fac1 * ( Nx - i ) * std::complex< double >( 0.0, 1.0 )
+                            + fac2 * ( Nx - i ) * ( Nx - i ) );
+      }
+    }
+    
+    fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, T_spec, T1_phys );
+    
+    for( int i = 0; i < Nx; i++ )
+    {
+      for( int j = 0; j < Ny; j++ )
+      {
+        T0_phys[ i ][ j ] = T1_phys[ i ][ j ] / ( Nx * Ny );
+      }
+    }
+    
+    // Write netCDF data
+    testWriter.write( t + 1, T0_phys );
+  }
 }
 
 } // diagnostics
