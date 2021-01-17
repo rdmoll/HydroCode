@@ -350,4 +350,106 @@ void TestSuite::simpleAdvDiff( size_t nSteps, double deltaT, size_t Nx, size_t N
   }
 }
 
+void TestSuite::simpleAdvDiffNL( size_t nSteps, double deltaT, size_t Nx, size_t Ny, double c, double nu )
+{
+  double pi = std::acos(-1.0);
+  
+  int nOutX = std::floor( Nx / 2 + 1 );
+  int nOutY = std::floor( Ny / 2 + 1 );
+  
+  std::vector< std::vector< double > > T0_phys( Nx, std::vector< double >( Ny, 0.0 ) );
+  std::vector< std::vector< double > > dT0_phys( Nx, std::vector< double >( Ny, 0.0 ) );
+  std::vector< std::vector< double > > NL0_phys( Nx, std::vector< double >( Ny, 0.0 ) );
+  std::vector< std::vector< double > > T1_phys( Nx, std::vector< double >( Ny, 0.0 ) );
+  std::vector< std::vector< std::complex< double > > >
+    T_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
+  std::vector< std::vector< std::complex< double > > >
+    dT_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
+  std::vector< std::vector< std::complex< double > > >
+    NL_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
+  
+  hydroCode::FourierTransforms fft;
+  io::ioNetCDF testWriter( "/Users/rmoll/Desktop/test_AdvDiff_xy.nc", "data", Nx, Ny );
+  
+  for( int i = 0; i < Nx; i++ )
+  {
+    for( int j = 0; j < Ny; j++ )
+    {
+      T0_phys[ i ][ j ] = std::cos( i * ( 2 * pi / Nx ) );
+    }
+  }
+  testWriter.write( 0, T0_phys );
+  
+  // Starting time step loop
+  for( size_t t = 0; t < nSteps; t++ )
+  {
+    fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, T0_phys, T_spec );
+    
+    for( int i = 0 ; i < nOutX ; i++ )
+    {
+      for( int j = 0 ; j < nOutY ; j++ )
+      {
+        dT_spec[ i ][ j ] = 2.0 * pi * i * std::complex< double >( 0.0, 1.0 ) * T_spec[ i ][ j ];
+      }
+    }
+    
+    for( int i = nOutX ; i < Nx ; i++ )
+    {
+      for( int j = 0 ; j < nOutY ; j++ )
+      {
+        dT_spec[ i ][ j ] = -2.0 * pi * ( Nx - i ) * std::complex< double >( 0.0, 1.0 ) * T_spec[ i ][ j ];
+      }
+    }
+    
+    fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, dT_spec, dT0_phys );
+    
+    for( int i = 0; i < Nx; i++ )
+    {
+      for( int j = 0; j < Ny; j++ )
+      {
+        dT0_phys[ i ][ j ] /= ( Nx * Ny );
+      }
+    }
+    
+    for( int i = 0; i < Nx; i++ )
+    {
+      for( int j = 0; j < Ny; j++ )
+      {
+        NL0_phys[ i ][ j ] = T0_phys[ i ][ j ] * dT0_phys[ i ][ j ];
+      }
+    }
+    
+    fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, NL0_phys, NL_spec );
+    
+    for( int i = 0 ; i < nOutX ; i++ )
+    {
+      for( int j = 0 ; j < nOutY ; j++ )
+      {
+        T_spec[ i ][ j ] = T_spec[ i ][ j ] - deltaT * NL_spec[ i ][ j ];
+      }
+    }
+    
+    for( int i = nOutX ; i < Nx ; i++ )
+    {
+      for( int j = 0 ; j < nOutY ; j++ )
+      {
+        T_spec[ i ][ j ] = T_spec[ i ][ j ] - deltaT * NL_spec[ i ][ j ];
+      }
+    }
+    
+    fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, T_spec, T1_phys );
+    
+    for( int i = 0; i < Nx; i++ )
+    {
+      for( int j = 0; j < Ny; j++ )
+      {
+        T0_phys[ i ][ j ] = T1_phys[ i ][ j ] / ( Nx * Ny );
+      }
+    }
+    
+    // Write netCDF data
+    testWriter.write( t + 1, T0_phys );
+  }
+}
+
 } // diagnostics

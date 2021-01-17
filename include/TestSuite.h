@@ -31,6 +31,7 @@ public:
   void testDeriv2();
   
   void simpleAdvDiff( size_t nSteps, double deltaT, size_t Nx, size_t Ny, double c, double nu );
+  void simpleAdvDiffNL( size_t nSteps, double deltaT, size_t Nx, size_t Ny, double c, double nu );
 };
 
 } // diagnostics
