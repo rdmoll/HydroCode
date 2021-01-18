@@ -362,20 +362,24 @@ void TestSuite::simpleAdvDiff( size_t nSteps, double deltaT, size_t Nx, size_t N
   
   std::vector< std::vector< double > > T0_phys( Nx, std::vector< double >( Ny, 0.0 ) );
   std::vector< std::vector< double > > T1_phys( Nx, std::vector< double >( Ny, 0.0 ) );
+  std::vector< std::vector< double > > truth_phys( Nx, std::vector< double >( Ny, 0.0 ) );
   std::vector< std::vector< std::complex< double > > >
     T_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
   
   hydroCode::FourierTransforms fft;
   io::ioNetCDF testWriter( "/Users/rmoll/Desktop/test_AdvDiff_xy.nc", "data", Nx, Ny, 'w' );
+  io::ioNetCDF truthWriter( "/Users/rmoll/Desktop/truth_AdvDiff_xy.nc", "data", Nx, Ny, 'w' );
   
   for( int i = 0; i < Nx; i++ )
   {
     for( int j = 0; j < Ny; j++ )
     {
       T0_phys[ i ][ j ] = std::cos( i * ( 2 * pi / Nx ) );
+      truth_phys[ i ][ j ] = std::cos( i * ( 2 * pi / Nx ) );
     }
   }
   testWriter.write( 0, T0_phys );
+  truthWriter.write( 0, truth_phys );
   
   // Starting time step loop
   for( size_t t = 0; t < nSteps; t++ )
@@ -410,8 +414,17 @@ void TestSuite::simpleAdvDiff( size_t nSteps, double deltaT, size_t Nx, size_t N
       }
     }
     
+    for( int i = 0; i < Nx; i++ )
+    {
+      for( int j = 0; j < Ny; j++ )
+      {
+        truth_phys[ i ][ j ] = std::cos( ( 1.0 * i + Nx * c * ( t + 1 ) * deltaT ) * ( 2 * pi / Nx ) );
+      }
+    }
+    
     // Write netCDF data
     testWriter.write( t + 1, T0_phys );
+    truthWriter.write( t + 1, truth_phys );
   }
 }
 
