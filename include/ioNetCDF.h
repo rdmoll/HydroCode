@@ -18,10 +18,10 @@ namespace io
 class ioNetCDF
 {
 public:
-  ioNetCDF( std::string fileName, std::string variable, size_t xDimSize, size_t yDimSize );
+  ioNetCDF( std::string fileName, std::string variable, size_t xDimSize, size_t yDimSize, char mode );
   ~ioNetCDF();
   
-  void read( size_t writeIndex, std::vector< std::vector< double > >& dataVector );
+  void read( size_t readIndex, std::vector< std::vector< double > >& dataVector );
   void write( size_t writeIndex, std::vector< std::vector< double > >& dataVector );
   
   netCDF::NcFile _dataFile;

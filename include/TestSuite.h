@@ -29,6 +29,9 @@ public:
   void testFourierTransforms_2D();
   void testDeriv();
   void testDeriv2();
+  void testReadWriteIO();
+  void testWriteIO();
+  void testReadIO();
   
   void simpleAdvDiff( size_t nSteps, double deltaT, size_t Nx, size_t Ny, double c, double nu );
   void simpleAdvDiffNL( size_t nSteps, double deltaT, size_t Nx, size_t Ny, double c, double nu );

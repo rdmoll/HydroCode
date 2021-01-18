@@ -286,6 +286,71 @@ void TestSuite::testDeriv2()
   std::cout << "testDeriv2               : sigma = " << std::sqrt( mse ) << std::endl;
 }
 
+void TestSuite::testReadWriteIO()
+{
+  testWriteIO();
+  testReadIO();
+}
+
+void TestSuite::testWriteIO()
+{
+  size_t Nx = 3;
+  size_t Ny = 3;
+  size_t Nsteps = 2;
+  io::ioNetCDF testIO( "/Users/rmoll/Desktop/test_io.nc", "data", Nx, Ny, 'w' );
+  
+  std::vector< std::vector< double > > testDataWrite( Nx, std::vector< double >( Ny, 0.0 ) );
+  
+  for( int ntime = 0; ntime < Nsteps; ntime++ )
+  {
+    for( int i = 0; i < Nx; i++ )
+    {
+      for( int j = 0; j < Ny; j++ )
+      {
+        testDataWrite[ i ][ j ] = 1.0 * ( Ny * i + j + 1.0 );
+      }
+    }
+    
+    testIO.write( ntime, testDataWrite );
+  }
+}
+
+void TestSuite::testReadIO()
+{
+  bool pass = true;
+  size_t Nx = 3;
+  size_t Ny = 3;
+  size_t Nsteps = 2;
+  io::ioNetCDF testIO( "/Users/rmoll/Desktop/test_io.nc", "data", Nx, Ny, 'r' );
+  
+  std::vector< std::vector< double > > testDataRead( Nx, std::vector< double >( Ny, 0.0 ) );
+  
+  for( int ntime = 0; ntime < Nsteps; ntime++ )
+  {
+    testIO.read( ntime, testDataRead );
+    
+    for( int i = 0; i < Nx; i++ )
+    {
+      for( int j = 0; j < Ny; j++ )
+      {
+        if( testDataRead[ i ][ j ] != 1.0 * ( Ny * i + j + 1.0 ) )
+        {
+          pass = false;
+        }
+      }
+    }
+  }
+  
+  if( pass )
+  {
+    std::cout << "testReadWriteIO          : PASS" << std::endl;
+  }
+  else
+  {
+    std::cout << "testReadParams           : FAIL" << std::endl;
+  }
+}
+
 void TestSuite::simpleAdvDiff( size_t nSteps, double deltaT, size_t Nx, size_t Ny, double c, double nu )
 {
   double pi = std::acos(-1.0);
@@ -301,7 +366,7 @@ void TestSuite::simpleAdvDiff( size_t nSteps, double deltaT, size_t Nx, size_t N
     T_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
   
   hydroCode::FourierTransforms fft;
-  io::ioNetCDF testWriter( "/Users/rmoll/Desktop/test_AdvDiff_xy.nc", "data", Nx, Ny );
+  io::ioNetCDF testWriter( "/Users/rmoll/Desktop/test_AdvDiff_xy.nc", "data", Nx, Ny, 'w' );
   
   for( int i = 0; i < Nx; i++ )
   {
@@ -369,7 +434,7 @@ void TestSuite::simpleAdvDiffNL( size_t nSteps, double deltaT, size_t Nx, size_t
     NL_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
   
   hydroCode::FourierTransforms fft;
-  io::ioNetCDF testWriter( "/Users/rmoll/Desktop/test_AdvDiff_xy.nc", "data", Nx, Ny );
+  io::ioNetCDF testWriter( "/Users/rmoll/Desktop/test_AdvDiff_xy.nc", "data", Nx, Ny, 'w' );
   
   for( int i = 0; i < Nx; i++ )
   {

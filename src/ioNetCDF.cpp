@@ -10,23 +10,32 @@
 namespace io
 {
 
-ioNetCDF::ioNetCDF( std::string fileName, std::string variable, size_t xDimSize, size_t yDimSize )
+ioNetCDF::ioNetCDF( std::string fileName, std::string variable, size_t xDimSize, size_t yDimSize, char mode )
 {
-  _dataFile.open( fileName, netCDF::NcFile::replace );
-  
   _xDimSize = xDimSize;
   _yDimSize = yDimSize;
   
-  netCDF::NcDim tDim = _dataFile.addDim( "T" );
-  netCDF::NcDim xDim = _dataFile.addDim( "X", _xDimSize );
-  netCDF::NcDim yDim = _dataFile.addDim( "Y", _yDimSize );
-  
-  std::vector< netCDF::NcDim > dims;
-  dims.push_back( tDim );
-  dims.push_back( xDim );
-  dims.push_back( yDim );
-  
-  _data = _dataFile.addVar( variable, netCDF::ncDouble, dims );
+  if( mode == 'r')
+  {
+    _dataFile.open( fileName, netCDF::NcFile::read );
+    
+    _data = _dataFile.getVar( variable );
+  }
+  else if( mode == 'w' )
+  {
+    _dataFile.open( fileName, netCDF::NcFile::replace );
+    
+    netCDF::NcDim tDim = _dataFile.addDim( "T" );
+    netCDF::NcDim xDim = _dataFile.addDim( "X", _xDimSize );
+    netCDF::NcDim yDim = _dataFile.addDim( "Y", _yDimSize );
+    
+    std::vector< netCDF::NcDim > dims;
+    dims.push_back( tDim );
+    dims.push_back( xDim );
+    dims.push_back( yDim );
+    
+    _data = _dataFile.addVar( variable, netCDF::ncDouble, dims );
+  }
   
   _startp.push_back( 0 );
   _startp.push_back( 0 );
@@ -41,10 +50,10 @@ ioNetCDF::~ioNetCDF()
   _dataFile.close();
 }
 
-void ioNetCDF::read( size_t writeIndex, std::vector< std::vector< double > >& dataVector )
+void ioNetCDF::read( size_t readIndex, std::vector< std::vector< double > >& dataVector )
 {
   double dataIn[ _xDimSize ][ _yDimSize ];
-  _startp[ 0 ] = writeIndex;
+  _startp[ 0 ] = readIndex;
   
   _data.getVar( _startp, _countp, dataIn );
   
