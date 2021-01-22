@@ -23,16 +23,9 @@ int main( int argc, const char * argv[] )
   unitTests.testDeriv();
   unitTests.testDeriv2();
   unitTests.testReadWriteIO();
+  unitTests.simpleAdvDiff( "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/advDiffParams.txt" );
+  unitTests.simpleAdvDiffNL( "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/advDiffNLParams.txt" );
   std::cout << std::endl;
-  
-  //size_t nSteps = 40;
-  //double deltaT = 0.005;
-  //size_t Nx = 64;
-  //size_t Ny = 64;
-  //double c = 0.1;
-  //double nu = 0.0;
-  //unitTests.simpleAdvDiff( nSteps, deltaT, Nx, Ny, c, nu );
-  //unitTests.simpleAdvDiffNL( nSteps, deltaT, Nx, Ny, c, nu );
   
   return 0;
 }

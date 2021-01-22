@@ -1,0 +1,8 @@
+nSteps    = 40
+deltaT    = 0.005
+Nx        = 64
+Ny        = 64
+c         = 0.1
+nu        = 0.0
+testFile  = /Users/rmoll/Documents/dev/projects/HydroCode/Testing/test_AdvDiff.nc
+truthFile = /Users/rmoll/Documents/dev/projects/HydroCode/Testing/truth_AdvDiff.nc

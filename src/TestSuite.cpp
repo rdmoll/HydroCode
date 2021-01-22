@@ -25,7 +25,7 @@ void TestSuite::testReadParams()
   std::cout << "testReadParams           : ";
   
   const char* delimiter = "=";
-  const char* filename = "/Users/rmoll/Documents/dev/projects/HydroCode/HydroCode/parameters.txt";
+  const char* filename = "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/parametersTest.txt";
   io::ReadParams parameterFile( filename, delimiter );
   
   double value1 = parameterFile.dParam[ "value1" ];
@@ -297,7 +297,7 @@ void TestSuite::testWriteIO()
   size_t Nx = 3;
   size_t Ny = 3;
   size_t Nsteps = 2;
-  io::ioNetCDF testIO( "/Users/rmoll/Desktop/test_io.nc", "data", Nx, Ny, 'w' );
+  io::ioNetCDF testIO( "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/test_io.nc", "data", Nx, Ny, 'w' );
   
   std::vector< std::vector< double > > testDataWrite( Nx, std::vector< double >( Ny, 0.0 ) );
   
@@ -321,7 +321,7 @@ void TestSuite::testReadIO()
   size_t Nx = 3;
   size_t Ny = 3;
   size_t Nsteps = 2;
-  io::ioNetCDF testIO( "/Users/rmoll/Desktop/test_io.nc", "data", Nx, Ny, 'r' );
+  io::ioNetCDF testIO( "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/test_io.nc", "data", Nx, Ny, 'r' );
   
   std::vector< std::vector< double > > testDataRead( Nx, std::vector< double >( Ny, 0.0 ) );
   
@@ -351,8 +351,20 @@ void TestSuite::testReadIO()
   }
 }
 
-void TestSuite::simpleAdvDiff( size_t nSteps, double deltaT, size_t Nx, size_t Ny, double c, double nu )
+void TestSuite::simpleAdvDiff( std::string paramFile )
 {
+  const char* delimiter = "=";
+  io::ReadParams parameterFile( paramFile.c_str(), delimiter );
+  
+  size_t nSteps = static_cast< size_t >( parameterFile.iParam[ "nSteps" ] );
+  double deltaT = parameterFile.dParam[ "deltaT" ];
+  size_t Nx = static_cast< size_t >( parameterFile.iParam[ "Nx" ] );
+  size_t Ny = static_cast< size_t >( parameterFile.iParam[ "Ny" ] );
+  double c = parameterFile.dParam[ "c" ];
+  double nu = parameterFile.dParam[ "nu" ];
+  std::string testWriterFile = parameterFile.strParam[ "testFile" ];
+  std::string truthWriterFile = parameterFile.strParam[ "truthFile" ];
+  
   double pi = std::acos(-1.0);
   
   int nOutX = std::floor( Nx / 2 + 1 );
@@ -367,8 +379,9 @@ void TestSuite::simpleAdvDiff( size_t nSteps, double deltaT, size_t Nx, size_t N
     T_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
   
   hydroCode::FourierTransforms fft;
-  io::ioNetCDF testWriter( "/Users/rmoll/Desktop/test_AdvDiff_xy.nc", "data", Nx, Ny, 'w' );
-  io::ioNetCDF truthWriter( "/Users/rmoll/Desktop/truth_AdvDiff_xy.nc", "data", Nx, Ny, 'w' );
+  
+  io::ioNetCDF testWriter( testWriterFile, "data", Nx, Ny, 'w' );
+  io::ioNetCDF truthWriter( truthWriterFile, "data", Nx, Ny, 'w' );
   
   for( int i = 0; i < Nx; i++ )
   {
@@ -428,8 +441,18 @@ void TestSuite::simpleAdvDiff( size_t nSteps, double deltaT, size_t Nx, size_t N
   }
 }
 
-void TestSuite::simpleAdvDiffNL( size_t nSteps, double deltaT, size_t Nx, size_t Ny, double c, double nu )
+void TestSuite::simpleAdvDiffNL( std::string paramFile )
 {
+  const char* delimiter = "=";
+  io::ReadParams parameterFile( paramFile.c_str(), delimiter );
+  
+  size_t nSteps = static_cast< size_t >( parameterFile.iParam[ "nSteps" ] );
+  double deltaT = parameterFile.dParam[ "deltaT" ];
+  size_t Nx = static_cast< size_t >( parameterFile.iParam[ "Nx" ] );
+  size_t Ny = static_cast< size_t >( parameterFile.iParam[ "Ny" ] );
+  double nu = parameterFile.dParam[ "nu" ];
+  std::string testWriterFile = parameterFile.strParam[ "dataFile" ];
+  
   double pi = std::acos(-1.0);
   
   int nOutX = std::floor( Nx / 2 + 1 );
@@ -447,7 +470,9 @@ void TestSuite::simpleAdvDiffNL( size_t nSteps, double deltaT, size_t Nx, size_t
     NL_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
   
   hydroCode::FourierTransforms fft;
-  io::ioNetCDF testWriter( "/Users/rmoll/Desktop/test_AdvDiff_xy.nc", "data", Nx, Ny, 'w' );
+  
+  ;
+  io::ioNetCDF testWriter( testWriterFile, "data", Nx, Ny, 'w' );
   
   for( int i = 0; i < Nx; i++ )
   {
