@@ -69,8 +69,6 @@ void TestSuite::testReadParams()
 
 void TestSuite::testFourierTransforms1()
 {
-  double pi = std::acos(-1.0);
-  
   int N = 16;
   int nOut = std::floor( N / 2 + 1 );
   
@@ -115,8 +113,6 @@ void TestSuite::testFourierTransforms1()
 
 void TestSuite::testFourierTransforms2()
 {
-  double pi = std::acos(-1.0);
-  
   int N = 16;
   int nOut = std::floor( N / 2 + 1 );
   
@@ -158,8 +154,6 @@ void TestSuite::testFourierTransforms2()
 
 void TestSuite::testFourierTransforms_2D()
 {
-  double pi = std::acos(-1.0);
-  
   size_t Nx = 16;
   size_t Ny = 16;
   //int nOutX = std::floor( Nx / 2 + 1 );
@@ -216,8 +210,6 @@ void TestSuite::testFourierTransforms_2D()
 
 void TestSuite::testDeriv()
 {
-  double pi = std::acos(-1.0);
-  
   int N = 16;
   int nOut = std::floor( N / 2 + 1 );
   
@@ -252,8 +244,6 @@ void TestSuite::testDeriv()
 
 void TestSuite::testDeriv2()
 {
-  double pi = std::acos(-1.0);
-  
   int N = 16;
   int nOut = std::floor( N / 2 + 1 );
   
@@ -353,6 +343,11 @@ void TestSuite::testReadIO()
 
 void TestSuite::simpleAdvDiff( std::string paramFile )
 {
+  std::cout << "simpleAdvDiff" << std::endl;
+  
+  std::clock_t c_start = std::clock();
+  auto t_start = std::chrono::high_resolution_clock::now();
+  
   const char* delimiter = "=";
   io::ReadParams parameterFile( paramFile.c_str(), delimiter );
   
@@ -366,8 +361,6 @@ void TestSuite::simpleAdvDiff( std::string paramFile )
   double nu = parameterFile.dParam[ "nu" ];
   std::string testWriterFile = parameterFile.strParam[ "testFile" ];
   std::string truthWriterFile = parameterFile.strParam[ "truthFile" ];
-  
-  double pi = std::acos(-1.0);
   
   int nOutX = std::floor( Nx / 2 + 1 );
   int nOutY = std::floor( Ny / 2 + 1 );
@@ -441,10 +434,23 @@ void TestSuite::simpleAdvDiff( std::string paramFile )
     testWriter.write( t + 1, T0_phys );
     truthWriter.write( t + 1, truth_phys );
   }
+  
+  std::clock_t c_end = std::clock();
+  auto t_end = std::chrono::high_resolution_clock::now();
+  std::cout << std::fixed << std::setprecision(2) << "CPU time used: "
+            << 1000.0 * (c_end - c_start) / CLOCKS_PER_SEC << " ms\n"
+            << "Wall clock time passed: "
+            << std::chrono::duration<double, std::milli>(t_end-t_start).count()
+            << " ms\n" << std::endl;
 }
 
 void TestSuite::simpleAdvDiffNL( std::string paramFile )
 {
+  std::cout << "simpleAdvDiffNL" << std::endl;
+  
+  std::clock_t c_start = std::clock();
+  auto t_start = std::chrono::high_resolution_clock::now();
+  
   const char* delimiter = "=";
   io::ReadParams parameterFile( paramFile.c_str(), delimiter );
   
@@ -456,8 +462,6 @@ void TestSuite::simpleAdvDiffNL( std::string paramFile )
   double Ly = parameterFile.dParam[ "Ly" ];
   double nu = parameterFile.dParam[ "nu" ];
   std::string testWriterFile = parameterFile.strParam[ "dataFile" ];
-  
-  double pi = std::acos(-1.0);
   
   int nOutX = std::floor( Nx / 2 + 1 );
   int nOutY = std::floor( Ny / 2 + 1 );
@@ -560,6 +564,14 @@ void TestSuite::simpleAdvDiffNL( std::string paramFile )
     // Write netCDF data
     testWriter.write( t + 1, T0_phys );
   }
+  
+  std::clock_t c_end = std::clock();
+  auto t_end = std::chrono::high_resolution_clock::now();
+  std::cout << std::fixed << std::setprecision(2) << "CPU time used: "
+            << 1000.0 * (c_end - c_start) / CLOCKS_PER_SEC << " ms\n"
+            << "Wall clock time passed: "
+            << std::chrono::duration<double, std::milli>(t_end-t_start).count()
+            << " ms\n" << std::endl;
 }
 
 } // diagnostics

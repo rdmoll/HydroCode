@@ -10,6 +10,7 @@
 #include "TestSuite.h"
 #include "FourierTransforms.h"
 #include "ioNetCDF.h"
+#include "TestSolver.h"
 
 int main( int argc, const char * argv[] )
 {
@@ -23,9 +24,17 @@ int main( int argc, const char * argv[] )
   unitTests.testDeriv();
   unitTests.testDeriv2();
   unitTests.testReadWriteIO();
+  
+  std::cout << std::endl;
+  
   unitTests.simpleAdvDiff( "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/advDiffParams.txt" );
   unitTests.simpleAdvDiffNL( "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/advDiffNLParams.txt" );
+  
   std::cout << std::endl;
+  
+  solvers::TestSolver
+    simpleAdvDiff( "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/testSolverParams.txt" );
+  simpleAdvDiff.runSimulation();
   
   return 0;
 }

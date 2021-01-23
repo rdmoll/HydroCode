@@ -209,4 +209,15 @@ void FourierTransforms::fft_c2r_2d( int N, int M,
   fftw_free( out );
 }
 
+void FourierTransforms::scaleOutput( int N, int M, std::vector< std::vector< double > > &f_phys )
+{
+  for( size_t i = 0; i < N; i++ )
+  {
+    for( size_t j = 0; j < M; j++ )
+    {
+      f_phys[ i ][ j ] /= ( N * M );
+    }
+  }
+}
+
 } // hydroCode

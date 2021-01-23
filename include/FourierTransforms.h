@@ -40,6 +40,8 @@ public:
                    std::vector< std::vector< std::complex< double > > > &cVec,
                    std::vector< std::vector< double > > &rVec );
   
+  void scaleOutput( int N, int M, std::vector< std::vector< double > > &f_phys );
+  
 protected:
   fftw_plan plan_r2c;
   fftw_plan plan_c2r;

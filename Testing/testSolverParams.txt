@@ -1,0 +1,8 @@
+nSteps   = 40
+deltaT   = 0.005
+Nx       = 64
+Ny       = 64
+Lx       = 1.0
+Ly       = 1.0
+nu       = 0.0
+dataFile = /Users/rmoll/Documents/dev/projects/HydroCode/Testing/testSolver.nc

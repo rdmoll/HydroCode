@@ -11,6 +11,7 @@ make_movie = False
 advDiffFile_test = "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/test_AdvDiff.nc"
 advDiffFile_truth = "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/truth_AdvDiff.nc"
 advDiffNLFile = "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/test_AdvDiffNL.nc"
+testSolverFile = "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/testSolver.nc"
 
 # Read Data
 test = netCDF4.Dataset(advDiffFile_test,'r')
@@ -40,6 +41,15 @@ dataColNL2 = dataNL[19,:,0]
 dataColNL3 = dataNL[29,:,0]
 dataColNL4 = dataNL[39,:,0]
 
+testSolver = netCDF4.Dataset(testSolverFile,'r')
+dataMaskedTestSolver = testSolver.variables['data']
+dataTestSolver = dataMaskedTestSolver[:,:,:]
+dataColTestSolver0 = dataTestSolver[0,:,0]
+dataColTestSolver1 = dataTestSolver[9,:,0]
+dataColTestSolver2 = dataTestSolver[19,:,0]
+dataColTestSolver3 = dataTestSolver[29,:,0]
+dataColTestSolver4 = dataTestSolver[39,:,0]
+
 # Plot data
 if plot_1d:
     plt.figure(1)
@@ -61,6 +71,18 @@ if plot_1d:
     oneDNLPlot2 = plt.plot(dataColNL2)
     oneDNLPlot3 = plt.plot(dataColNL3)
     oneDNLPlot4 = plt.plot(dataColNL4)
+
+    plt.figure(3)
+    testSolverPlot0 = plt.plot(dataColTestSolver0)
+    #testSolverPlot1 = plt.plot(dataColTestSolver1)
+    #testSolverPlot2 = plt.plot(dataColTestSolver2)
+    #testSolverPlot3 = plt.plot(dataColTestSolver3)
+    testSolverPlot4 = plt.plot(dataColTestSolver4)
+    #oneDPlotTruth0 = plt.plot(dataColTruth0)
+    #oneDPlotTruth1 = plt.plot(dataColTruth1)
+    #oneDPlotTruth2 = plt.plot(dataColTruth2)
+    #oneDPlotTruth3 = plt.plot(dataColTruth3)
+    #oneDPlotTruth4 = plt.plot(dataColTruth4)
 
     plt.show()
 

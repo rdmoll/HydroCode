@@ -9,6 +9,7 @@
 #define TestSuite_h
 
 #include <iostream>
+#include <chrono>
 #include "FourierTransforms.h"
 #include "ReadParams.h"
 #include "Derivatives.h"
@@ -35,6 +36,9 @@ public:
   
   void simpleAdvDiff( std::string paramFile );
   void simpleAdvDiffNL( std::string paramFile );
+  
+protected:
+  const double pi = std::acos( -1.0 );
 };
 
 } // diagnostics
