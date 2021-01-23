@@ -360,6 +360,8 @@ void TestSuite::simpleAdvDiff( std::string paramFile )
   double deltaT = parameterFile.dParam[ "deltaT" ];
   size_t Nx = static_cast< size_t >( parameterFile.iParam[ "Nx" ] );
   size_t Ny = static_cast< size_t >( parameterFile.iParam[ "Ny" ] );
+  double Lx = parameterFile.dParam[ "Lx" ];
+  double Ly = parameterFile.dParam[ "Ly" ];
   double c = parameterFile.dParam[ "c" ];
   double nu = parameterFile.dParam[ "nu" ];
   std::string testWriterFile = parameterFile.strParam[ "testFile" ];
@@ -369,8 +371,8 @@ void TestSuite::simpleAdvDiff( std::string paramFile )
   
   int nOutX = std::floor( Nx / 2 + 1 );
   int nOutY = std::floor( Ny / 2 + 1 );
-  double fac1 = 2.0 * pi * deltaT * c;
-  double fac2 = 4.0 * pi * pi * deltaT * nu;
+  double advFac = 2.0 * pi * deltaT * c / Lx;
+  double diffFac = 4.0 * pi * pi * deltaT * nu / ( Lx * Lx );
   
   std::vector< std::vector< double > > T0_phys( Nx, std::vector< double >( Ny, 0.0 ) );
   std::vector< std::vector< double > > T1_phys( Nx, std::vector< double >( Ny, 0.0 ) );
@@ -403,8 +405,8 @@ void TestSuite::simpleAdvDiff( std::string paramFile )
     {
       for( int j = 0 ; j < nOutY ; j++ )
       {
-        T_spec[ i ][ j ] /= ( 1.0 - fac1 * i * std::complex< double >( 0.0, 1.0 )
-                            + fac2 * i * i );
+        T_spec[ i ][ j ] /= ( 1.0 + advFac * i * std::complex< double >( 0.0, 1.0 )
+                            + diffFac * i * i );
       }
     }
     
@@ -412,8 +414,8 @@ void TestSuite::simpleAdvDiff( std::string paramFile )
     {
       for( int j = 0 ; j < nOutY ; j++ )
       {
-        T_spec[ i ][ j ] /= ( 1.0 + fac1 * ( Nx - i ) * std::complex< double >( 0.0, 1.0 )
-                            + fac2 * ( Nx - i ) * ( Nx - i ) );
+        T_spec[ i ][ j ] /= ( 1.0 - advFac * ( Nx - i ) * std::complex< double >( 0.0, 1.0 )
+                            + diffFac * ( Nx - i ) * ( Nx - i ) );
       }
     }
     
@@ -431,7 +433,7 @@ void TestSuite::simpleAdvDiff( std::string paramFile )
     {
       for( int j = 0; j < Ny; j++ )
       {
-        truth_phys[ i ][ j ] = std::cos( ( 1.0 * i + Nx * c * ( t + 1 ) * deltaT ) * ( 2 * pi / Nx ) );
+        truth_phys[ i ][ j ] = std::cos( i * 2.0 * pi / Nx - ( t + 1 ) * advFac );
       }
     }
     
@@ -450,6 +452,8 @@ void TestSuite::simpleAdvDiffNL( std::string paramFile )
   double deltaT = parameterFile.dParam[ "deltaT" ];
   size_t Nx = static_cast< size_t >( parameterFile.iParam[ "Nx" ] );
   size_t Ny = static_cast< size_t >( parameterFile.iParam[ "Ny" ] );
+  double Lx = parameterFile.dParam[ "Lx" ];
+  double Ly = parameterFile.dParam[ "Ly" ];
   double nu = parameterFile.dParam[ "nu" ];
   std::string testWriterFile = parameterFile.strParam[ "dataFile" ];
   
@@ -457,6 +461,8 @@ void TestSuite::simpleAdvDiffNL( std::string paramFile )
   
   int nOutX = std::floor( Nx / 2 + 1 );
   int nOutY = std::floor( Ny / 2 + 1 );
+  double advFac = 2.0 * pi / Lx;
+  double diffFac = 4.0 * pi * pi * deltaT * nu / ( Lx * Lx );
   
   std::vector< std::vector< double > > T0_phys( Nx, std::vector< double >( Ny, 0.0 ) );
   std::vector< std::vector< double > > dT0_phys( Nx, std::vector< double >( Ny, 0.0 ) );
@@ -471,7 +477,6 @@ void TestSuite::simpleAdvDiffNL( std::string paramFile )
   
   hydroCode::FourierTransforms fft;
   
-  ;
   io::ioNetCDF testWriter( testWriterFile, "data", Nx, Ny, 'w' );
   
   for( int i = 0; i < Nx; i++ )
@@ -492,7 +497,7 @@ void TestSuite::simpleAdvDiffNL( std::string paramFile )
     {
       for( int j = 0 ; j < nOutY ; j++ )
       {
-        dT_spec[ i ][ j ] = 2.0 * pi * i * std::complex< double >( 0.0, 1.0 ) * T_spec[ i ][ j ];
+        dT_spec[ i ][ j ] = advFac * i * std::complex< double >( 0.0, 1.0 ) * T_spec[ i ][ j ];
       }
     }
     
@@ -500,7 +505,7 @@ void TestSuite::simpleAdvDiffNL( std::string paramFile )
     {
       for( int j = 0 ; j < nOutY ; j++ )
       {
-        dT_spec[ i ][ j ] = -2.0 * pi * ( Nx - i ) * std::complex< double >( 0.0, 1.0 ) * T_spec[ i ][ j ];
+        dT_spec[ i ][ j ] = -advFac * ( Nx - i ) * std::complex< double >( 0.0, 1.0 ) * T_spec[ i ][ j ];
       }
     }
     
@@ -528,7 +533,8 @@ void TestSuite::simpleAdvDiffNL( std::string paramFile )
     {
       for( int j = 0 ; j < nOutY ; j++ )
       {
-        T_spec[ i ][ j ] = T_spec[ i ][ j ] - deltaT * NL_spec[ i ][ j ];
+        T_spec[ i ][ j ] = ( T_spec[ i ][ j ] - deltaT * NL_spec[ i ][ j ] )
+                           / ( 1.0 + diffFac * i * i );
       }
     }
     
@@ -536,7 +542,8 @@ void TestSuite::simpleAdvDiffNL( std::string paramFile )
     {
       for( int j = 0 ; j < nOutY ; j++ )
       {
-        T_spec[ i ][ j ] = T_spec[ i ][ j ] - deltaT * NL_spec[ i ][ j ];
+        T_spec[ i ][ j ] = ( T_spec[ i ][ j ] - deltaT * NL_spec[ i ][ j ] )
+                           / ( 1.0 + diffFac * ( Nx - i ) * ( Nx - i ) );
       }
     }
     
