@@ -82,7 +82,7 @@ if plot_1d:
     #oneDPlotTruth1 = plt.plot(dataColTruth1)
     #oneDPlotTruth2 = plt.plot(dataColTruth2)
     #oneDPlotTruth3 = plt.plot(dataColTruth3)
-    #oneDPlotTruth4 = plt.plot(dataColTruth4)
+    oneDPlotTruth4 = plt.plot(dataColTruth4)
 
     plt.show()
 

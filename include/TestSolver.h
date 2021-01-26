@@ -25,10 +25,13 @@ public:
   
   void setInitConditions( std::vector< std::vector< double > >& T0_phys,
                           std::vector< std::vector< double > >& u0_phys );
-  void calcDeriv( std::vector< std::vector< std::complex< double > > >& f_spec,
-                  std::vector< std::vector< std::complex< double > > >& df_spec );
-  void solveU( std::vector< std::vector< std::complex< double > > >& u_spec, double diffFac );
-  void solveT( std::vector< std::vector< std::complex< double > > >& T_spec, double advFac, double diffFac );
+  void calcDerivX( std::vector< std::vector< std::complex< double > > >& f_spec,
+                   std::vector< std::vector< std::complex< double > > >& df_spec );
+  void calcNonLin( std::vector< std::vector< double > >& f1_phys,
+                   std::vector< std::vector< std::complex< double > > >& f2_spec,
+                   std::vector< std::vector< std::complex< double > > >& nl_spec );
+  void solve( std::vector< std::vector< std::complex< double > > >& f0_spec,
+              std::vector< std::vector< std::complex< double > > >& nl_spec );
   void runSimulation();
   
 protected:

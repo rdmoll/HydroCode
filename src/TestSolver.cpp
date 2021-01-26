@@ -47,26 +47,14 @@ void TestSolver::setInitConditions( std::vector< std::vector< double > >& T0_phy
   }
 }
 
-void TestSolver::calcDeriv( std::vector< std::vector< std::complex< double > > >& f_spec,
-                            std::vector< std::vector< std::complex< double > > >& df_spec )
-{
-  
-}
-
-void TestSolver::solveU(std::vector< std::vector< std::complex< double > > >& u_spec, double diffFac )
-{
-  
-}
-
-void TestSolver::solveT( std::vector< std::vector< std::complex< double > > >& T_spec,
-                         double advFac, double diffFac )
+void TestSolver::calcDerivX( std::vector< std::vector< std::complex< double > > >& f_spec,
+                             std::vector< std::vector< std::complex< double > > >& df_spec )
 {
   for( int i = 0 ; i < nOutX ; i++ )
   {
     for( int j = 0 ; j < nOutY ; j++ )
     {
-      T_spec[ i ][ j ] /= ( 1.0 + advFac * i * std::complex< double >( 0.0, 1.0 )
-                          + diffFac * i * i );
+      df_spec[ i ][ j ] = 1.0 * i * std::complex< double >( 0.0, 1.0 ) * f_spec[ i ][ j ];
     }
   }
   
@@ -74,8 +62,57 @@ void TestSolver::solveT( std::vector< std::vector< std::complex< double > > >& T
   {
     for( int j = 0 ; j < nOutY ; j++ )
     {
-      T_spec[ i ][ j ] /= ( 1.0 - advFac * ( Nx - i ) * std::complex< double >( 0.0, 1.0 )
-                          + diffFac * ( Nx - i ) * ( Nx - i ) );
+      df_spec[ i ][ j ] = -1.0 * ( Nx - i ) * std::complex< double >( 0.0, 1.0 ) * f_spec[ i ][ j ];
+    }
+  }
+}
+
+void TestSolver::calcNonLin( std::vector< std::vector< double > >& f1_phys,
+                             std::vector< std::vector< std::complex< double > > >& f2_spec,
+                             std::vector< std::vector< std::complex< double > > >& nl_spec )
+{
+  std::vector< std::vector< std::complex< double > > >
+    df2dx_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
+  std::vector< std::vector< double > > df2dx_phys( Nx, std::vector< double >( Ny, 0.0 ) );
+  std::vector< std::vector< double > > nl_phys( Nx, std::vector< double >( Ny, 0.0 ) );
+  
+  calcDerivX( f2_spec, df2dx_spec );
+  
+  fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, df2dx_spec, df2dx_phys );
+  fft.scaleOutput( ( int ) Nx, ( int ) Ny, df2dx_phys );
+  
+  for( int i = 0; i < Nx; i++ )
+  {
+    for( int j = 0; j < Ny; j++ )
+    {
+      //nl_phys[ i ][ j ] = f1_phys[ i ][ j ] * df2dx_phys[ i ][ j ];
+      nl_phys[ i ][ j ] = 0.1 * df2dx_phys[ i ][ j ];
+    }
+  }
+  
+  fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, nl_phys, nl_spec );
+}
+
+void TestSolver::solve( std::vector< std::vector< std::complex< double > > >& f_spec,
+                        std::vector< std::vector< std::complex< double > > >& nl_spec )
+{
+  double diffFac = 0.0; //4.0 * pi * pi * deltaT * nu / ( Lx * Lx );
+  
+  for( int i = 0 ; i < nOutX ; i++ )
+  {
+    for( int j = 0 ; j < nOutY ; j++ )
+    {
+      f_spec[ i ][ j ] = ( f_spec[ i ][ j ] - deltaT * nl_spec[ i ][ j ] )
+                         / ( 1.0 + diffFac * i * i );
+    }
+  }
+  
+  for( int i = nOutX ; i < Nx ; i++ )
+  {
+    for( int j = 0 ; j < nOutY ; j++ )
+    {
+      f_spec[ i ][ j ] = ( f_spec[ i ][ j ] - deltaT * nl_spec[ i ][ j ] )
+                         / ( 1.0 + diffFac * ( Nx - i ) * ( Nx - i ) );
     }
   }
 }
@@ -91,31 +128,21 @@ void TestSolver::runSimulation()
   // Initialize data writer
   io::ioNetCDF testWriter( testWriterFile, "data", Nx, Ny, 'w' );
   
-  // Define constants
-  double c = 0.1;
-  double advFac = 2.0 * pi * deltaT * c / Lx;
-  double diffFac = 4.0 * pi * pi * deltaT * nu / ( Lx * Lx );
-  
   // Initialize arrays
   std::vector< std::vector< double > > T0_phys( Nx, std::vector< double >( Ny, 0.0 ) );
   std::vector< std::vector< double > > u0_phys( Nx, std::vector< double >( Ny, 0.0 ) );
   std::vector< std::vector< double > > T1_phys( Nx, std::vector< double >( Ny, 0.0 ) );
   std::vector< std::vector< double > > u1_phys( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< double > > N_phys( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< double > > L_phys( Nx, std::vector< double >( Ny, 0.0 ) );
+  std::vector< std::vector< double > > temp( Nx, std::vector< double >( Ny, 0.0 ) );
   
   std::vector< std::vector< std::complex< double > > >
     T_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
   std::vector< std::vector< std::complex< double > > >
     u_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
   std::vector< std::vector< std::complex< double > > >
-    dTdx_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
+    nl_T_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
   std::vector< std::vector< std::complex< double > > >
-    dudx_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  std::vector< std::vector< std::complex< double > > >
-    N_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  std::vector< std::vector< std::complex< double > > >
-    L_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
+    nl_u_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
   
   // Set initial conditions
   setInitConditions( T0_phys, u0_phys );
@@ -124,32 +151,30 @@ void TestSolver::runSimulation()
   // Start time step loop
   for( size_t t = 0; t < nSteps; t++)
   {
-    // Transform T0:    phys --> spec
+    // Transform: phys --> spec
     fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, T0_phys, T_spec );
-    
-    // Transform u0:    phys --> spec
     fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, u0_phys, u_spec );
     
-    // Calculate dTdx in spectral space
-    //calcDeriv( T_spec, dTdx_spec );
+    // Calculate Non-linear terms
+    calcNonLin( u0_phys, T_spec, nl_T_spec );
+    calcNonLin( u0_phys, u_spec, nl_u_spec );
     
-    // Calculate dudx in spectral space
-    //calcDeriv( u_spec, dudx_spec );
+    // Calculate New time step
+    solve( T_spec, nl_T_spec );
     
-    solveT( T_spec, advFac, diffFac );
-    
-    // Transform du0dx: spec --> phys
+    // Transform: spec --> phys
     fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, T_spec, T1_phys );
     fft.scaleOutput( ( int ) Nx, ( int ) Ny, T1_phys );
+    fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, u_spec, u1_phys );
+    fft.scaleOutput( ( int ) Nx, ( int ) Ny, u1_phys );
     
-    // Calculate NL = u0*du0dx in physical space
-    // Transform NL:    phys --> spec
-    // Calculate u1 in spectral space
-    // Transform u1:    spec --> phys
-    // set: u0 = u1, um1 = u0, um2 = um1, um3 = um2
+    // Write T1 to file
+    testWriter.write( t + 1, T1_phys );
     
-    // Write u1 to file
-    testWriter.write( t + 1, T0_phys );
+    // Reset time pointers
+    temp = T1_phys;
+    T1_phys = T0_phys;
+    T0_phys = temp;
   }
   
   // End timer
