@@ -23,6 +23,7 @@ TestSolver::TestSolver( std::string paramFile )
   Lx = parameterFile.dParam[ "Lx" ];
   Ly = parameterFile.dParam[ "Ly" ];
   nu = parameterFile.dParam[ "nu" ];
+  nu = parameterFile.dParam[ "kappa" ];
   testWriterFile = parameterFile.strParam[ "dataFile" ];
   
   nOutX = std::floor( Nx / 2 + 1 );
@@ -43,6 +44,7 @@ void TestSolver::setInitConditions( std::vector< std::vector< double > >& T0_phy
     {
       T0_phys[ i ][ j ] = std::cos( i * ( 2.0 * pi / Nx ) );
       u0_phys[ i ][ j ] = 0.1;
+      //u0_phys[ i ][ j ] = 0.1 * std::sin( i * ( 2.0 * pi / Nx ) ) + 0.1;
     }
   }
 }
@@ -54,7 +56,7 @@ void TestSolver::calcDerivX( std::vector< std::vector< std::complex< double > > 
   {
     for( int j = 0 ; j < nOutY ; j++ )
     {
-      df_spec[ i ][ j ] = 1.0 * i * std::complex< double >( 0.0, 1.0 ) * f_spec[ i ][ j ];
+      df_spec[ i ][ j ] = 2.0 * pi * i * std::complex< double >( 0.0, 1.0 ) * f_spec[ i ][ j ];
     }
   }
   
@@ -62,7 +64,7 @@ void TestSolver::calcDerivX( std::vector< std::vector< std::complex< double > > 
   {
     for( int j = 0 ; j < nOutY ; j++ )
     {
-      df_spec[ i ][ j ] = -1.0 * ( Nx - i ) * std::complex< double >( 0.0, 1.0 ) * f_spec[ i ][ j ];
+      df_spec[ i ][ j ] = -2.0 * pi * ( Nx - i ) * std::complex< double >( 0.0, 1.0 ) * f_spec[ i ][ j ];
     }
   }
 }
@@ -85,8 +87,7 @@ void TestSolver::calcNonLin( std::vector< std::vector< double > >& f1_phys,
   {
     for( int j = 0; j < Ny; j++ )
     {
-      //nl_phys[ i ][ j ] = f1_phys[ i ][ j ] * df2dx_phys[ i ][ j ];
-      nl_phys[ i ][ j ] = 0.1 * df2dx_phys[ i ][ j ];
+      nl_phys[ i ][ j ] = f1_phys[ i ][ j ] * df2dx_phys[ i ][ j ];
     }
   }
   
@@ -94,9 +95,10 @@ void TestSolver::calcNonLin( std::vector< std::vector< double > >& f1_phys,
 }
 
 void TestSolver::solve( std::vector< std::vector< std::complex< double > > >& f_spec,
-                        std::vector< std::vector< std::complex< double > > >& nl_spec )
+                        std::vector< std::vector< std::complex< double > > >& nl_spec,
+                        double diffusivity )
 {
-  double diffFac = 0.0; //4.0 * pi * pi * deltaT * nu / ( Lx * Lx );
+  double diffFac = 4.0 * pi * pi * deltaT * diffusivity / ( Lx * Lx );
   
   for( int i = 0 ; i < nOutX ; i++ )
   {
@@ -126,7 +128,7 @@ void TestSolver::runSimulation()
   auto t_start = std::chrono::high_resolution_clock::now();
   
   // Initialize data writer
-  io::ioNetCDF testWriter( testWriterFile, "data", Nx, Ny, 'w' );
+  io::ioNetCDF testWriter( testWriterFile, Nx, Ny, 'w' );
   
   // Initialize arrays
   std::vector< std::vector< double > > T0_phys( Nx, std::vector< double >( Ny, 0.0 ) );
@@ -146,7 +148,8 @@ void TestSolver::runSimulation()
   
   // Set initial conditions
   setInitConditions( T0_phys, u0_phys );
-  testWriter.write( 0, T0_phys );
+  testWriter.write_T( 0, T0_phys );
+  testWriter.write_u( 0, u0_phys );
   
   // Start time step loop
   for( size_t t = 0; t < nSteps; t++)
@@ -160,21 +163,28 @@ void TestSolver::runSimulation()
     calcNonLin( u0_phys, u_spec, nl_u_spec );
     
     // Calculate New time step
-    solve( T_spec, nl_T_spec );
+    solve( T_spec, nl_T_spec, kappa );
+    solve( u_spec, nl_u_spec, nu );
     
     // Transform: spec --> phys
     fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, T_spec, T1_phys );
     fft.scaleOutput( ( int ) Nx, ( int ) Ny, T1_phys );
+    
     fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, u_spec, u1_phys );
     fft.scaleOutput( ( int ) Nx, ( int ) Ny, u1_phys );
     
     // Write T1 to file
-    testWriter.write( t + 1, T1_phys );
+    testWriter.write_T( t + 1, T1_phys );
+    testWriter.write_u( t + 1, u1_phys );
     
-    // Reset time pointers
+    // Reset pointers
     temp = T1_phys;
     T1_phys = T0_phys;
     T0_phys = temp;
+    
+    temp = u1_phys;
+    u1_phys = u0_phys;
+    u0_phys = temp;
   }
   
   // End timer

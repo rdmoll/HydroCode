@@ -31,7 +31,8 @@ public:
                    std::vector< std::vector< std::complex< double > > >& f2_spec,
                    std::vector< std::vector< std::complex< double > > >& nl_spec );
   void solve( std::vector< std::vector< std::complex< double > > >& f0_spec,
-              std::vector< std::vector< std::complex< double > > >& nl_spec );
+              std::vector< std::vector< std::complex< double > > >& nl_spec,
+              double diffusivity );
   void runSimulation();
   
 protected:
@@ -41,7 +42,7 @@ protected:
   double deltaT;
   size_t Nx, Ny;
   double Lx, Ly;
-  double nu;
+  double nu, kappa;
   std::string testWriterFile;
   
   int nOutX;

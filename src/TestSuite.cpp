@@ -287,7 +287,7 @@ void TestSuite::testWriteIO()
   size_t Nx = 3;
   size_t Ny = 3;
   size_t Nsteps = 2;
-  io::ioNetCDF testIO( "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/test_io.nc", "data", Nx, Ny, 'w' );
+  io::ioNetCDF testIO( "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/test_io.nc", Nx, Ny, 'w' );
   
   std::vector< std::vector< double > > testDataWrite( Nx, std::vector< double >( Ny, 0.0 ) );
   
@@ -301,7 +301,8 @@ void TestSuite::testWriteIO()
       }
     }
     
-    testIO.write( ntime, testDataWrite );
+    testIO.write_T( ntime, testDataWrite );
+    testIO.write_u( ntime, testDataWrite );
   }
 }
 
@@ -311,19 +312,25 @@ void TestSuite::testReadIO()
   size_t Nx = 3;
   size_t Ny = 3;
   size_t Nsteps = 2;
-  io::ioNetCDF testIO( "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/test_io.nc", "data", Nx, Ny, 'r' );
+  io::ioNetCDF testIO( "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/test_io.nc", Nx, Ny, 'r' );
   
-  std::vector< std::vector< double > > testDataRead( Nx, std::vector< double >( Ny, 0.0 ) );
+  std::vector< std::vector< double > > testDataRead_T( Nx, std::vector< double >( Ny, 0.0 ) );
+  std::vector< std::vector< double > > testDataRead_u( Nx, std::vector< double >( Ny, 0.0 ) );
   
   for( int ntime = 0; ntime < Nsteps; ntime++ )
   {
-    testIO.read( ntime, testDataRead );
+    testIO.read_T( ntime, testDataRead_T );
+    testIO.read_u( ntime, testDataRead_u );
     
     for( int i = 0; i < Nx; i++ )
     {
       for( int j = 0; j < Ny; j++ )
       {
-        if( testDataRead[ i ][ j ] != 1.0 * ( Ny * i + j + 1.0 ) )
+        if( testDataRead_T[ i ][ j ] != 1.0 * ( Ny * i + j + 1.0 ) )
+        {
+          pass = false;
+        }
+        if( testDataRead_u[ i ][ j ] != 1.0 * ( Ny * i + j + 1.0 ) )
         {
           pass = false;
         }
@@ -375,8 +382,8 @@ void TestSuite::simpleAdvDiff( std::string paramFile )
   
   hydroCode::FourierTransforms fft;
   
-  io::ioNetCDF testWriter( testWriterFile, "data", Nx, Ny, 'w' );
-  io::ioNetCDF truthWriter( truthWriterFile, "data", Nx, Ny, 'w' );
+  io::ioNetCDF testWriter( testWriterFile, Nx, Ny, 'w' );
+  io::ioNetCDF truthWriter( truthWriterFile, Nx, Ny, 'w' );
   
   for( int i = 0; i < Nx; i++ )
   {
@@ -386,8 +393,8 @@ void TestSuite::simpleAdvDiff( std::string paramFile )
       truth_phys[ i ][ j ] = std::cos( i * ( 2 * pi / Nx ) );
     }
   }
-  testWriter.write( 0, T0_phys );
-  truthWriter.write( 0, truth_phys );
+  testWriter.write_T( 0, T0_phys );
+  truthWriter.write_T( 0, truth_phys );
   
   // Starting time step loop
   for( size_t t = 0; t < nSteps; t++ )
@@ -431,8 +438,8 @@ void TestSuite::simpleAdvDiff( std::string paramFile )
     }
     
     // Write netCDF data
-    testWriter.write( t + 1, T0_phys );
-    truthWriter.write( t + 1, truth_phys );
+    testWriter.write_T( t + 1, T0_phys );
+    truthWriter.write_T( t + 1, truth_phys );
   }
   
   std::clock_t c_end = std::clock();
@@ -481,7 +488,7 @@ void TestSuite::simpleAdvDiffNL( std::string paramFile )
   
   hydroCode::FourierTransforms fft;
   
-  io::ioNetCDF testWriter( testWriterFile, "data", Nx, Ny, 'w' );
+  io::ioNetCDF testWriter( testWriterFile, Nx, Ny, 'w' );
   
   for( int i = 0; i < Nx; i++ )
   {
@@ -490,7 +497,7 @@ void TestSuite::simpleAdvDiffNL( std::string paramFile )
       T0_phys[ i ][ j ] = std::cos( i * ( 2 * pi / Nx ) );
     }
   }
-  testWriter.write( 0, T0_phys );
+  testWriter.write_T( 0, T0_phys );
   
   // Starting time step loop
   for( size_t t = 0; t < nSteps; t++ )
@@ -562,7 +569,7 @@ void TestSuite::simpleAdvDiffNL( std::string paramFile )
     }
     
     // Write netCDF data
-    testWriter.write( t + 1, T0_phys );
+    testWriter.write_T( t + 1, T0_phys );
   }
   
   std::clock_t c_end = std::clock();

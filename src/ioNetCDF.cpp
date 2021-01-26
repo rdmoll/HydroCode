@@ -10,7 +10,7 @@
 namespace io
 {
 
-ioNetCDF::ioNetCDF( std::string fileName, std::string variable, size_t xDimSize, size_t yDimSize, char mode )
+ioNetCDF::ioNetCDF( std::string fileName, size_t xDimSize, size_t yDimSize, char mode )
 {
   _xDimSize = xDimSize;
   _yDimSize = yDimSize;
@@ -19,7 +19,8 @@ ioNetCDF::ioNetCDF( std::string fileName, std::string variable, size_t xDimSize,
   {
     _dataFile.open( fileName, netCDF::NcFile::read );
     
-    _data = _dataFile.getVar( variable );
+    _data_T = _dataFile.getVar( "data_T" );
+    _data_u = _dataFile.getVar( "data_u" );
   }
   else if( mode == 'w' )
   {
@@ -34,7 +35,8 @@ ioNetCDF::ioNetCDF( std::string fileName, std::string variable, size_t xDimSize,
     dims.push_back( xDim );
     dims.push_back( yDim );
     
-    _data = _dataFile.addVar( variable, netCDF::ncDouble, dims );
+    _data_T = _dataFile.addVar( "data_T", netCDF::ncDouble, dims );
+    _data_u = _dataFile.addVar( "data_u", netCDF::ncDouble, dims );
   }
   
   _startp.push_back( 0 );
@@ -50,12 +52,12 @@ ioNetCDF::~ioNetCDF()
   _dataFile.close();
 }
 
-void ioNetCDF::read( size_t readIndex, std::vector< std::vector< double > >& dataVector )
+void ioNetCDF::read_T( size_t readIndex, std::vector< std::vector< double > >& dataVector )
 {
   double dataIn[ _xDimSize ][ _yDimSize ];
   _startp[ 0 ] = readIndex;
   
-  _data.getVar( _startp, _countp, dataIn );
+  _data_T.getVar( _startp, _countp, dataIn );
   
   for( size_t i = 0; i < _xDimSize; i++ )
   {
@@ -66,7 +68,23 @@ void ioNetCDF::read( size_t readIndex, std::vector< std::vector< double > >& dat
   }
 }
 
-void ioNetCDF::write( size_t writeIndex, std::vector< std::vector< double > >& dataVector )
+void ioNetCDF::read_u( size_t readIndex, std::vector< std::vector< double > >& dataVector )
+{
+  double dataIn[ _xDimSize ][ _yDimSize ];
+  _startp[ 0 ] = readIndex;
+  
+  _data_u.getVar( _startp, _countp, dataIn );
+  
+  for( size_t i = 0; i < _xDimSize; i++ )
+  {
+    for( size_t j = 0; j < _yDimSize; j++ )
+    {
+      dataVector[ i ][ j ] = dataIn[ i ][ j ];
+    }
+  }
+}
+
+void ioNetCDF::write_T( size_t writeIndex, std::vector< std::vector< double > >& dataVector )
 {
   double dataArray[ _xDimSize ][ _yDimSize ];
   
@@ -79,7 +97,23 @@ void ioNetCDF::write( size_t writeIndex, std::vector< std::vector< double > >& d
   }
   
   _startp[ 0 ] = writeIndex;
-  _data.putVar( _startp, _countp, dataArray );
+  _data_T.putVar( _startp, _countp, dataArray );
+}
+
+void ioNetCDF::write_u( size_t writeIndex, std::vector< std::vector< double > >& dataVector )
+{
+  double dataArray[ _xDimSize ][ _yDimSize ];
+  
+  for( size_t i = 0; i < _xDimSize; i++ )
+  {
+    for( size_t j = 0; j < _yDimSize; j++ )
+    {
+      dataArray[ i ][ j ] = dataVector[ i ][ j ];
+    }
+  }
+  
+  _startp[ 0 ] = writeIndex;
+  _data_u.putVar( _startp, _countp, dataArray );
 }
 
 }

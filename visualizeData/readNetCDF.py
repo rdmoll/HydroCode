@@ -15,7 +15,7 @@ testSolverFile = "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/testSolv
 
 # Read Data
 test = netCDF4.Dataset(advDiffFile_test,'r')
-dataMasked = test.variables['data']
+dataMasked = test.variables['data_T']
 data = dataMasked[:,:,:]
 dataColTest0 = data[0,:,0]
 dataColTest1 = data[9,:,0]
@@ -24,7 +24,7 @@ dataColTest3 = data[29,:,0]
 dataColTest4 = data[39,:,0]
 
 truth = netCDF4.Dataset(advDiffFile_truth,'r')
-dataMaskedTruth = truth.variables['data']
+dataMaskedTruth = truth.variables['data_T']
 dataTruth = dataMaskedTruth[:,:,:]
 dataColTruth0 = dataTruth[0,:,0]
 dataColTruth1 = dataTruth[9,:,0]
@@ -33,7 +33,7 @@ dataColTruth3 = dataTruth[29,:,0]
 dataColTruth4 = dataTruth[39,:,0]
 
 testNL = netCDF4.Dataset(advDiffNLFile,'r')
-dataMaskedNL = testNL.variables['data']
+dataMaskedNL = testNL.variables['data_T']
 dataNL = dataMaskedNL[:,:,:]
 dataColNL0 = dataNL[0,:,0]
 dataColNL1 = dataNL[9,:,0]
@@ -42,7 +42,7 @@ dataColNL3 = dataNL[29,:,0]
 dataColNL4 = dataNL[39,:,0]
 
 testSolver = netCDF4.Dataset(testSolverFile,'r')
-dataMaskedTestSolver = testSolver.variables['data']
+dataMaskedTestSolver = testSolver.variables['data_T']
 dataTestSolver = dataMaskedTestSolver[:,:,:]
 dataColTestSolver0 = dataTestSolver[0,:,0]
 dataColTestSolver1 = dataTestSolver[9,:,0]
