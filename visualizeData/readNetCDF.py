@@ -3,7 +3,6 @@ import numpy as np
 import netCDF4
 import matplotlib.pyplot as plt
 import os
-from PIL import Image
 
 plot_1d = True
 make_movie = False
@@ -100,3 +99,5 @@ if make_movie:
 
 test.close()
 truth.close()
+testNL.close()
+testSolver.close()
