@@ -24,10 +24,14 @@ int main( int argc, const char * argv[] )
   unitTests.testDeriv();
   unitTests.testDeriv2();
   unitTests.testReadWriteIO();
+  unitTests.testDeriv2D();
   
   std::cout << std::endl;
   
   unitTests.simpleAdvDiff( "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/advDiffParams.txt" );
+  
+  std::cout << std::endl;
+  
   unitTests.simpleAdvDiffNL( "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/advDiffNLParams.txt" );
   
   std::cout << std::endl;

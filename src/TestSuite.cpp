@@ -276,6 +276,70 @@ void TestSuite::testDeriv2()
   std::cout << "testDeriv2               : sigma = " << std::sqrt( mse ) << std::endl;
 }
 
+void TestSuite::testDeriv2D()
+{
+  const double pi = std::acos( -1.0 );
+  
+  size_t Nx = 16;
+  size_t Ny = 16;
+  double Lx = 1.0;
+  double Ly = 1.0;
+  
+  int nOutY = std::floor( Ny / 2 + 1 );
+  
+  hydroCode::FourierTransforms fft;
+  mathOps::Derivatives ops;
+  
+  std::vector< std::vector< double > > f_phys( Nx, std::vector< double >( Ny, 0.0 ) );
+  std::vector< std::vector< double > > df_phys( Nx, std::vector< double >( Ny, 0.0 ) );
+  std::vector< std::vector< double > > dfx_truth( Nx, std::vector< double >( Ny, 0.0 ) );
+  std::vector< std::vector< double > > dfy_truth( Nx, std::vector< double >( Ny, 0.0 ) );
+  std::vector< std::vector< std::complex< double > > >
+    f_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
+  std::vector< std::vector< std::complex< double > > >
+    df_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
+  
+  for( int i = 0; i < Nx; i++ )
+  {
+    for( int j = 0; j < Ny; j++ )
+    {
+      f_phys[ i ][ j ] = std::cos( i * ( 2 * pi / Nx ) ) * std::cos( j * ( 2.0 * pi / Ny ) );
+      dfx_truth[ i ][ j ] = -( 2.0 * pi / Lx ) * std::sin( i * ( 2 * pi / Nx ) ) * std::cos( j * ( 2.0 * pi / Ny ) );
+      dfy_truth[ i ][ j ] = -( 2.0 * pi / Ly ) * std::cos( i * ( 2 * pi / Nx ) ) * std::sin( j * ( 2.0 * pi / Ny ) );
+    }
+  }
+  
+  fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, f_phys, f_spec );
+  ops.calcDerivX( f_spec, df_spec, Nx, Ny, Lx );
+  fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, df_spec, df_phys );
+  
+  double mseX = 0.0;
+  for( int i = 0; i < Nx; i++ )
+  {
+    for( int j = 0; j < Ny; j++ )
+    {
+      mseX += std::pow( df_phys[ i ][ j ] / ( Nx * Ny ) - dfx_truth[ i ][ j ], 2.0 );
+    }
+  }
+  mseX /= ( Nx * Ny );
+  
+  fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, f_phys, f_spec );
+  ops.calcDerivY( f_spec, df_spec, Nx, Ny, Ly );
+  fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, df_spec, df_phys );
+  
+  double mseY = 0.0;
+  for( int i = 0; i < Nx; i++ )
+  {
+    for( int j = 0; j < Ny; j++ )
+    {
+      mseY += std::pow( df_phys[ i ][ j ] / ( Nx * Ny ) - dfy_truth[ i ][ j ], 2.0 );
+    }
+  }
+  mseY /= ( Nx * Ny );
+  
+  std::cout << "testDeriv2D              : sigmaX = " << std::sqrt( mseX ) << ", sigmaY = " << std::sqrt( mseY ) << std::endl;
+}
+
 void TestSuite::testReadWriteIO()
 {
   testWriteIO();
@@ -448,7 +512,7 @@ void TestSuite::simpleAdvDiff( std::string paramFile )
             << 1000.0 * (c_end - c_start) / CLOCKS_PER_SEC << " ms\n"
             << "Wall clock time passed: "
             << std::chrono::duration<double, std::milli>(t_end-t_start).count()
-            << " ms\n" << std::endl;
+            << " ms" << std::endl;
 }
 
 void TestSuite::simpleAdvDiffNL( std::string paramFile )
@@ -578,7 +642,7 @@ void TestSuite::simpleAdvDiffNL( std::string paramFile )
             << 1000.0 * (c_end - c_start) / CLOCKS_PER_SEC << " ms\n"
             << "Wall clock time passed: "
             << std::chrono::duration<double, std::milli>(t_end-t_start).count()
-            << " ms\n" << std::endl;
+            << " ms" << std::endl;
 }
 
 } // diagnostics

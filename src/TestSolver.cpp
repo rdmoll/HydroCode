@@ -49,26 +49,6 @@ void TestSolver::setInitConditions( std::vector< std::vector< double > >& T0_phy
   }
 }
 
-void TestSolver::calcDerivX( std::vector< std::vector< std::complex< double > > >& f_spec,
-                             std::vector< std::vector< std::complex< double > > >& df_spec )
-{
-  for( int i = 0 ; i < nOutX ; i++ )
-  {
-    for( int j = 0 ; j < nOutY ; j++ )
-    {
-      df_spec[ i ][ j ] = 2.0 * pi * i * std::complex< double >( 0.0, 1.0 ) * f_spec[ i ][ j ];
-    }
-  }
-  
-  for( int i = nOutX ; i < Nx ; i++ )
-  {
-    for( int j = 0 ; j < nOutY ; j++ )
-    {
-      df_spec[ i ][ j ] = -2.0 * pi * ( Nx - i ) * std::complex< double >( 0.0, 1.0 ) * f_spec[ i ][ j ];
-    }
-  }
-}
-
 void TestSolver::calcNonLin( std::vector< std::vector< double > >& f1_phys,
                              std::vector< std::vector< std::complex< double > > >& f2_spec,
                              std::vector< std::vector< std::complex< double > > >& nl_spec )
@@ -78,7 +58,7 @@ void TestSolver::calcNonLin( std::vector< std::vector< double > >& f1_phys,
   std::vector< std::vector< double > > df2dx_phys( Nx, std::vector< double >( Ny, 0.0 ) );
   std::vector< std::vector< double > > nl_phys( Nx, std::vector< double >( Ny, 0.0 ) );
   
-  calcDerivX( f2_spec, df2dx_spec );
+  ops.calcDerivX( f2_spec, df2dx_spec, Nx, Ny, Lx );
   
   fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, df2dx_spec, df2dx_phys );
   fft.scaleOutput( ( int ) Nx, ( int ) Ny, df2dx_phys );

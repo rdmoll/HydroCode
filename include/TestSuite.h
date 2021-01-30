@@ -30,6 +30,7 @@ public:
   void testFourierTransforms_2D();
   void testDeriv();
   void testDeriv2();
+  void testDeriv2D();
   void testReadWriteIO();
   void testWriteIO();
   void testReadIO();

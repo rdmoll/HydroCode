@@ -13,6 +13,7 @@
 #include "FourierTransforms.h"
 #include "ReadParams.h"
 #include "ioNetCDF.h"
+#include "Derivatives.h"
 
 namespace solvers
 {
@@ -50,6 +51,7 @@ protected:
   size_t totN;
   
   hydroCode::FourierTransforms fft;
+  mathOps::Derivatives ops;
 };
 
 }

@@ -24,10 +24,10 @@ public:
   void deriv( std::vector< std::complex< double > > &inOut );
   void calcDerivX( std::vector< std::vector< std::complex< double > > >& f_spec,
                    std::vector< std::vector< std::complex< double > > >& df_spec,
-                   size_t Nx, size_t Ny );
+                   size_t Nx, size_t Ny, double Lx );
   void calcDerivY( std::vector< std::vector< std::complex< double > > >& f_spec,
                    std::vector< std::vector< std::complex< double > > >& df_spec,
-                   size_t Nx, size_t Ny );
+                   size_t Nx, size_t Ny, double Ly );
   void deriv2( std::vector< std::complex< double > > &inOut );
   void gradient();
   void laplacian();
