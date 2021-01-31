@@ -25,12 +25,14 @@ public:
   ~TestSolver();
   
   void setInitConditions( std::vector< std::vector< double > >& T0_phys,
-                          std::vector< std::vector< double > >& u0_phys );
-  void calcDerivX( std::vector< std::vector< std::complex< double > > >& f_spec,
-                   std::vector< std::vector< std::complex< double > > >& df_spec );
-  void calcNonLin( std::vector< std::vector< double > >& f1_phys,
-                   std::vector< std::vector< std::complex< double > > >& f2_spec,
-                   std::vector< std::vector< std::complex< double > > >& nl_spec );
+                         std::vector< std::vector< double > >& u0_phys,
+                         std::vector< std::vector< double > >& v0_phys );
+  void calcNonLinDx( std::vector< std::vector< double > >& f1_phys,
+                     std::vector< std::vector< std::complex< double > > >& f2_spec,
+                     std::vector< std::vector< std::complex< double > > >& nl_spec );
+  void calcNonLinDy( std::vector< std::vector< double > >& f1_phys,
+                     std::vector< std::vector< std::complex< double > > >& f2_spec,
+                     std::vector< std::vector< std::complex< double > > >& nl_spec );
   void solve( std::vector< std::vector< std::complex< double > > >& f0_spec,
               std::vector< std::vector< std::complex< double > > >& nl_spec,
               double diffusivity );

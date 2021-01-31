@@ -4,8 +4,8 @@ import netCDF4
 import matplotlib.pyplot as plt
 import os
 
-plot_1d = True
-make_movie = False
+plot_1d = False
+make_movie = True
 
 advDiffFile_test = "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/test_AdvDiff.nc"
 advDiffFile_truth = "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/truth_AdvDiff.nc"
@@ -41,13 +41,20 @@ dataColNL3 = dataNL[29,:,0]
 dataColNL4 = dataNL[39,:,0]
 
 testSolver = netCDF4.Dataset(testSolverFile,'r')
-dataMaskedTestSolver = testSolver.variables['data_T']
-dataTestSolver = dataMaskedTestSolver[:,:,:]
-dataColTestSolver0 = dataTestSolver[0,:,0]
-dataColTestSolver1 = dataTestSolver[9,:,0]
-dataColTestSolver2 = dataTestSolver[19,:,0]
-dataColTestSolver3 = dataTestSolver[29,:,0]
-dataColTestSolver4 = dataTestSolver[39,:,0]
+dataMaskedTestSolverT = testSolver.variables['data_T']
+dataMaskedTestSolverU = testSolver.variables['data_u']
+dataMaskedTestSolverV = testSolver.variables['data_v']
+dataTestSolver = dataMaskedTestSolverT[:,:,:]
+#dataColTestSolver0 = dataTestSolver[0,:,0]
+#dataColTestSolver1 = dataTestSolver[9,:,0]
+#dataColTestSolver2 = dataTestSolver[19,:,0]
+#dataColTestSolver3 = dataTestSolver[29,:,0]
+#dataColTestSolver4 = dataTestSolver[39,:,0]
+dataColTestSolver0 = dataTestSolver[1,:,31]
+dataColTestSolver1 = dataTestSolver[9,:,31]
+dataColTestSolver2 = dataTestSolver[19,:,31]
+dataColTestSolver3 = dataTestSolver[29,:,31]
+dataColTestSolver4 = dataTestSolver[159,:,31]
 
 # Plot data
 if plot_1d:
@@ -81,17 +88,17 @@ if plot_1d:
     #oneDPlotTruth1 = plt.plot(dataColTruth1)
     #oneDPlotTruth2 = plt.plot(dataColTruth2)
     #oneDPlotTruth3 = plt.plot(dataColTruth3)
-    oneDPlotTruth4 = plt.plot(dataColTruth4)
+    #oneDPlotTruth4 = plt.plot(dataColTruth4)
 
     plt.show()
 
 if make_movie:
     if not os.path.exists('images'):
         os.makedirs('images')
-    for i in range(0,40):
+    for i in range(0,256):
         imageFileName ="./images/screen-" + str(i).zfill(4) + ".tif"
         fig = plt.figure()
-        plt.imshow(data[i,:,:])
+        plt.imshow(dataTestSolver[i,:,:])
         fig.savefig(imageFileName)
         print(imageFileName)
 

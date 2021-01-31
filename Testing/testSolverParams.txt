@@ -1,9 +1,9 @@
-nSteps   = 40
+nSteps   = 256
 deltaT   = 0.005
 Nx       = 64
 Ny       = 64
 Lx       = 1.0
 Ly       = 1.0
-nu       = 0.0
-kappa    = 0.0
+nu       = 0.01
+kappa    = 0.01
 dataFile = /Users/rmoll/Documents/dev/projects/HydroCode/Testing/testSolver.nc
