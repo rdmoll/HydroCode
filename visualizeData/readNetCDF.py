@@ -4,91 +4,72 @@ import netCDF4
 import matplotlib.pyplot as plt
 import os
 
-plot_1d = False
-make_movie = True
+# Set which images are generated
+plot_1d = True
+make_movie = False
 
-advDiffFile_test = "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/test_AdvDiff.nc"
-advDiffFile_truth = "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/truth_AdvDiff.nc"
+# Data file names
+advDiffSimFile = "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/test_AdvDiff.nc"
+advDiffTruthFile = "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/truth_AdvDiff.nc"
 advDiffNLFile = "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/test_AdvDiffNL.nc"
 testSolverFile = "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/testSolver.nc"
 
-# Read Data
-test = netCDF4.Dataset(advDiffFile_test,'r')
-dataMasked = test.variables['data_T']
-data = dataMasked[:,:,:]
-dataColTest0 = data[0,:,0]
-dataColTest1 = data[9,:,0]
-dataColTest2 = data[19,:,0]
-dataColTest3 = data[29,:,0]
-dataColTest4 = data[39,:,0]
+# Image indices
+imageIdxs = [0, 9, 19, 29, 39]
 
-truth = netCDF4.Dataset(advDiffFile_truth,'r')
-dataMaskedTruth = truth.variables['data_T']
-dataTruth = dataMaskedTruth[:,:,:]
-dataColTruth0 = dataTruth[0,:,0]
-dataColTruth1 = dataTruth[9,:,0]
-dataColTruth2 = dataTruth[19,:,0]
-dataColTruth3 = dataTruth[29,:,0]
-dataColTruth4 = dataTruth[39,:,0]
+# Read simple adv-diff data
+advDiffSim = netCDF4.Dataset(advDiffSimFile,'r')
+advDiffSimMasked = advDiffSim.variables['data_T']
+advDiffSimData = advDiffSimMasked[:,:,:]
 
-testNL = netCDF4.Dataset(advDiffNLFile,'r')
-dataMaskedNL = testNL.variables['data_T']
-dataNL = dataMaskedNL[:,:,:]
-dataColNL0 = dataNL[0,:,0]
-dataColNL1 = dataNL[9,:,0]
-dataColNL2 = dataNL[19,:,0]
-dataColNL3 = dataNL[29,:,0]
-dataColNL4 = dataNL[39,:,0]
+# Read analytic solution to adv-diff solution
+advDiffTruth = netCDF4.Dataset(advDiffTruthFile,'r')
+advDiffTruthMasked = advDiffTruth.variables['data_T']
+advDiffTruthData = advDiffTruthMasked[:,:,:]
+
+# Read simple nonlinear adv-diff data
+advDiffNL = netCDF4.Dataset(advDiffNLFile,'r')
+advDiffNLMasked = advDiffNL.variables['data_T']
+advDiffNLData = advDiffNLMasked[:,:,:]
 
 testSolver = netCDF4.Dataset(testSolverFile,'r')
-dataMaskedTestSolverT = testSolver.variables['data_T']
-dataMaskedTestSolverU = testSolver.variables['data_u']
-dataMaskedTestSolverV = testSolver.variables['data_v']
-dataTestSolver = dataMaskedTestSolverT[:,:,:]
-#dataColTestSolver0 = dataTestSolver[0,:,0]
-#dataColTestSolver1 = dataTestSolver[9,:,0]
-#dataColTestSolver2 = dataTestSolver[19,:,0]
-#dataColTestSolver3 = dataTestSolver[29,:,0]
-#dataColTestSolver4 = dataTestSolver[39,:,0]
-dataColTestSolver0 = dataTestSolver[1,:,31]
-dataColTestSolver1 = dataTestSolver[9,:,31]
-dataColTestSolver2 = dataTestSolver[19,:,31]
-dataColTestSolver3 = dataTestSolver[29,:,31]
-dataColTestSolver4 = dataTestSolver[159,:,31]
+testSolverMaskedT = testSolver.variables['data_T']
+testSolverMaskedU = testSolver.variables['data_u']
+testSolverMaskedV = testSolver.variables['data_v']
+testSolverDataT = testSolverMaskedT[:,:,:]
+testSolverDataU = testSolverMaskedU[:,:,:]
+testSolverDataV = testSolverMaskedV[:,:,:]
 
 # Plot data
 if plot_1d:
     plt.figure(1)
-    oneDPlot0 = plt.plot(dataColTest0)
-    #oneDPlot1 = plt.plot(dataColTest1)
-    #oneDPlot2 = plt.plot(dataColTest2)
-    #oneDPlot3 = plt.plot(dataColTest3)
-    oneDPlot4 = plt.plot(dataColTest4)
-    #oneDPlotTruth0 = plt.plot(dataColTruth0)
-    #oneDPlotTruth1 = plt.plot(dataColTruth1)
-    #oneDPlotTruth2 = plt.plot(dataColTruth2)
-    #oneDPlotTruth3 = plt.plot(dataColTruth3)
-    oneDPlotTruth4 = plt.plot(dataColTruth4)
-    #err = plt.plot(dataColTruth4-dataCol1)
+    advDiffPlot0 = plt.plot(advDiffSimData[imageIdxs[0],:,0])
+    #advDiffPlot1 = plt.plot(advDiffSimData[imageIdxs[1],:,0])
+    #advDiffPlot2 = plt.plot(advDiffSimData[imageIdxs[2],:,0])
+    #advDiffPlot3 = plt.plot(advDiffSimData[imageIdxs[3],:,0])
+    advDiffPlot4 = plt.plot(advDiffSimData[imageIdxs[4],:,0])
+
+    #advDiffTruthPlot0 = plt.plot(advDiffTruthData[imageIdxs[0],:,0])
+    #advDiffTruthPlot1 = plt.plot(advDiffTruthData[imageIdxs[1],:,0])
+    #advDiffTruthPlot2 = plt.plot(advDiffTruthData[imageIdxs[2],:,0])
+    #advDiffTruthPlot3 = plt.plot(advDiffTruthData[imageIdxs[3],:,0])
+    advDiffTruthPlot4 = plt.plot(advDiffTruthData[imageIdxs[4],:,0])
+
+    #err = plt.plot(advDiffTruthData[imageIdxs[4],:,0]-advDiffSimData[imageIdxs[4],:,0])
 
     plt.figure(2)
-    oneDNLPlot0 = plt.plot(dataColNL0)
-    oneDNLPlot1 = plt.plot(dataColNL1)
-    oneDNLPlot2 = plt.plot(dataColNL2)
-    oneDNLPlot3 = plt.plot(dataColNL3)
-    oneDNLPlot4 = plt.plot(dataColNL4)
+    advDiffNLPlot0 = plt.plot(advDiffNLData[imageIdxs[0],:,0])
+    advDiffNLPlot1 = plt.plot(advDiffNLData[imageIdxs[1],:,0])
+    advDiffNLPlot2 = plt.plot(advDiffNLData[imageIdxs[2],:,0])
+    advDiffNLPlot3 = plt.plot(advDiffNLData[imageIdxs[3],:,0])
+    advDiffNLPlot4 = plt.plot(advDiffNLData[imageIdxs[4],:,0])
 
     plt.figure(3)
-    testSolverPlot0 = plt.plot(dataColTestSolver0)
-    #testSolverPlot1 = plt.plot(dataColTestSolver1)
-    #testSolverPlot2 = plt.plot(dataColTestSolver2)
-    #testSolverPlot3 = plt.plot(dataColTestSolver3)
-    testSolverPlot4 = plt.plot(dataColTestSolver4)
-    #oneDPlotTruth0 = plt.plot(dataColTruth0)
-    #oneDPlotTruth1 = plt.plot(dataColTruth1)
-    #oneDPlotTruth2 = plt.plot(dataColTruth2)
-    #oneDPlotTruth3 = plt.plot(dataColTruth3)
-    #oneDPlotTruth4 = plt.plot(dataColTruth4)
+    testSolverTPlot0 = plt.plot(testSolverDataT[imageIdxs[0],:,31])
+    testSolverTPlot0 = plt.plot(testSolverDataT[imageIdxs[1],:,31])
+    testSolverTPlot0 = plt.plot(testSolverDataT[imageIdxs[2],:,31])
+    testSolverTPlot0 = plt.plot(testSolverDataT[imageIdxs[3],:,31])
+    testSolverTPlot0 = plt.plot(testSolverDataT[imageIdxs[4],:,31])
 
     plt.show()
 
@@ -98,13 +79,13 @@ if make_movie:
     for i in range(0,256):
         imageFileName ="./images/screen-" + str(i).zfill(4) + ".tif"
         fig = plt.figure()
-        plt.imshow(dataTestSolver[i,:,:])
+        plt.imshow(testSolverDataT[i,:,:])
         fig.savefig(imageFileName)
         print(imageFileName)
 
     os.system("ffmpeg -r 30 -i ./images/screen-%04d.tif -crf 20 -pix_fmt yuv420p out.mp4")
 
-test.close()
-truth.close()
-testNL.close()
+advDiffSim.close()
+advDiffTruth.close()
+advDiffNL.close()
 testSolver.close()
