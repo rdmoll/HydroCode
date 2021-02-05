@@ -45,7 +45,7 @@ void TestSolver::setInitConditions( std::vector< std::vector< double > >& T0_phy
     {
       T0_phys[ i ][ j ] = std::cos( i * ( 2.0 * pi / Nx ) ) * std::sin( j * ( 2.0 * pi / Ny ) );
       u0_phys[ i ][ j ] = std::cos( i * ( 2.0 * pi / Nx ) ) * std::cos( j * ( 2.0 * pi / Nx ) );
-      v0_phys[ i ][ j ] = std::sin( i * ( 2.0 * pi / Nx ) ) * std::sin( j * ( 4.0 * pi / Ny ) );
+      v0_phys[ i ][ j ] = 0.0 * std::sin( i * ( 2.0 * pi / Nx ) ) * std::sin( j * ( 4.0 * pi / Ny ) );
     }
   }
 }
@@ -194,8 +194,8 @@ void TestSolver::runSimulation()
     calcNonLinDx( u0_phys, u_spec, nl_u_specDx );
     calcNonLinDy( v0_phys, u_spec, nl_u_specDy );
     
-    calcNonLinDx( u0_phys, v_spec, nl_v_specDx );
-    calcNonLinDy( v0_phys, v_spec, nl_v_specDy );
+    //calcNonLinDx( u0_phys, v_spec, nl_v_specDx );
+    //calcNonLinDy( v0_phys, v_spec, nl_v_specDy );
     
     for( int i = 0 ; i < Nx ; i++ )
     {
@@ -210,7 +210,7 @@ void TestSolver::runSimulation()
     // Calculate New time step
     solve( T_spec, nl_T_spec, kappa );
     solve( u_spec, nl_u_spec, nu );
-    solve( v_spec, nl_v_spec, nu );
+    //solve( v_spec, nl_v_spec, nu );
     
     // Transform: spec --> phys
     fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, T_spec, T1_phys );

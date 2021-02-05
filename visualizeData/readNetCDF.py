@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 import os
 
 # Set which images are generated
-plot_1d = True
-make_movie = False
+plot_1d = False
+make_movie = True
 
 # Data file names
 advDiffSimFile = "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/test_AdvDiff.nc"
@@ -65,11 +65,11 @@ if plot_1d:
     advDiffNLPlot4 = plt.plot(advDiffNLData[imageIdxs[4],:,0])
 
     plt.figure(3)
-    testSolverTPlot0 = plt.plot(testSolverDataT[imageIdxs[0],:,31])
-    testSolverTPlot0 = plt.plot(testSolverDataT[imageIdxs[1],:,31])
-    testSolverTPlot0 = plt.plot(testSolverDataT[imageIdxs[2],:,31])
-    testSolverTPlot0 = plt.plot(testSolverDataT[imageIdxs[3],:,31])
-    testSolverTPlot0 = plt.plot(testSolverDataT[imageIdxs[4],:,31])
+    testSolverTPlot0 = plt.plot(testSolverDataU[imageIdxs[0],:,31])
+    testSolverTPlot0 = plt.plot(testSolverDataU[imageIdxs[1],:,31])
+    testSolverTPlot0 = plt.plot(testSolverDataU[imageIdxs[2],:,31])
+    testSolverTPlot0 = plt.plot(testSolverDataU[imageIdxs[3],:,31])
+    testSolverTPlot0 = plt.plot(testSolverDataU[imageIdxs[4],:,31])
 
     plt.show()
 

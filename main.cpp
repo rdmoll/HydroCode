@@ -6,11 +6,13 @@
 //
 
 #include <iostream>
+#include <complex>
 #include <netcdf>
 #include "TestSuite.h"
 #include "FourierTransforms.h"
 #include "ioNetCDF.h"
 #include "TestSolver.h"
+#include "variables.h"
 
 int main( int argc, const char * argv[] )
 {
@@ -36,8 +38,8 @@ int main( int argc, const char * argv[] )
   
   std::cout << std::endl;
   
-  solvers::TestSolver
-    simpleAdvDiff( "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/testSolverParams.txt" );
+  std::string testSolverParamFile = "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/testSolverParams.txt";
+  solvers::TestSolver simpleAdvDiff( testSolverParamFile );
   simpleAdvDiff.runSimulation();
   
   return 0;
