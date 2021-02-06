@@ -15,7 +15,6 @@
 namespace variables
 {
 
-template< class T >
 class ScalarVar
 {
 public:
@@ -35,15 +34,15 @@ public:
   }
   ~ScalarVar(){};
   
-  std::vector< std::vector< T > > time0;
-  std::vector< std::vector< T > > time1;
-  std::vector< std::vector< T > > time2;
+  std::vector< std::vector< double > > time0;
+  std::vector< std::vector< double > > time1;
+  std::vector< std::vector< double > > time2;
+  std::vector< std::vector< std::complex< double > > > spec;
   
 protected:
-  std::vector< std::vector< T > > temp;
+  std::vector< std::vector< double > > temp;
 };
 
-template< class T >
 class VectorVar
 {
 public:
@@ -69,16 +68,18 @@ public:
   }
   ~VectorVar(){};
   
-  std::vector< std::vector< T > > xTime0;
-  std::vector< std::vector< T > > xTime1;
-  std::vector< std::vector< T > > xTime2;
+  std::vector< std::vector< double > > xTime0;
+  std::vector< std::vector< double > > xTime1;
+  std::vector< std::vector< double > > xTime2;
+  std::vector< std::vector< std::complex< double > > > xSpec;
   
-  std::vector< std::vector< T > > yTime0;
-  std::vector< std::vector< T > > yTime1;
-  std::vector< std::vector< T > > yTime2;
+  std::vector< std::vector< double > > yTime0;
+  std::vector< std::vector< double > > yTime1;
+  std::vector< std::vector< double > > yTime2;
+  std::vector< std::vector< std::complex< double > > > ySpec;
   
 protected:
-  std::vector< std::vector< T > > temp;
+  std::vector< std::vector< double > > temp;
 };
 
 }
