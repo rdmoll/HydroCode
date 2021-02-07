@@ -408,7 +408,7 @@ void TestSuite::testReadIO()
   }
   else
   {
-    std::cout << "testReadParams           : FAIL" << std::endl;
+    std::cout << "testReadWriteIO          : FAIL" << std::endl;
   }
 }
 
@@ -427,7 +427,7 @@ void TestSuite::simpleAdvDiff( std::string paramFile )
   size_t Nx = static_cast< size_t >( parameterFile.iParam[ "Nx" ] );
   size_t Ny = static_cast< size_t >( parameterFile.iParam[ "Ny" ] );
   double Lx = parameterFile.dParam[ "Lx" ];
-  double Ly = parameterFile.dParam[ "Ly" ];
+  //double Ly = parameterFile.dParam[ "Ly" ];
   double c = parameterFile.dParam[ "c" ];
   double nu = parameterFile.dParam[ "nu" ];
   std::string testWriterFile = parameterFile.strParam[ "testFile" ];
@@ -530,7 +530,7 @@ void TestSuite::simpleAdvDiffNL( std::string paramFile )
   size_t Nx = static_cast< size_t >( parameterFile.iParam[ "Nx" ] );
   size_t Ny = static_cast< size_t >( parameterFile.iParam[ "Ny" ] );
   double Lx = parameterFile.dParam[ "Lx" ];
-  double Ly = parameterFile.dParam[ "Ly" ];
+  //double Ly = parameterFile.dParam[ "Ly" ];
   double nu = parameterFile.dParam[ "nu" ];
   std::string testWriterFile = parameterFile.strParam[ "dataFile" ];
   

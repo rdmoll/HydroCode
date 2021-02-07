@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 import os
 
 # Set which images are generated
-plot_1d = False
-make_movie = True
+plot_1d = True
+make_movie = False
 
 # Data file names
 advDiffSimFile = "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/test_AdvDiff.nc"

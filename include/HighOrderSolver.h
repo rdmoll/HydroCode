@@ -14,6 +14,7 @@
 #include "ReadParams.h"
 #include "ioNetCDF.h"
 #include "Derivatives.h"
+#include "variables.h"
 
 namespace solvers
 {
@@ -27,15 +28,14 @@ public:
   void setInitConditions( std::vector< std::vector< double > >& T0_phys,
                          std::vector< std::vector< double > >& u0_phys,
                          std::vector< std::vector< double > >& v0_phys );
-  void calcNonLinDx( std::vector< std::vector< double > >& f1_phys,
-                     std::vector< std::vector< std::complex< double > > >& f2_spec,
-                     std::vector< std::vector< std::complex< double > > >& nl_spec );
-  void calcNonLinDy( std::vector< std::vector< double > >& f1_phys,
-                     std::vector< std::vector< std::complex< double > > >& f2_spec,
-                     std::vector< std::vector< std::complex< double > > >& nl_spec );
+  void calcNonLin( variables::VectorVar& u,
+                   std::vector< std::vector< std::complex< double > > >& f_spec,
+                   std::vector< std::vector< std::complex< double > > >& NL_spec );
   void solve( std::vector< std::vector< std::complex< double > > >& f0_spec,
               std::vector< std::vector< std::complex< double > > >& nl_spec,
               double diffusivity );
+  void resetTimePointers( variables::ScalarVar& scalar );
+  void resetTimePointers( variables::VectorVar& vec );
   void runSimulation();
   
 protected:

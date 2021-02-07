@@ -12,6 +12,7 @@
 #include "FourierTransforms.h"
 #include "ioNetCDF.h"
 #include "TestSolver.h"
+#include "HighOrderSolver.h"
 #include "variables.h"
 
 int main( int argc, const char * argv[] )
@@ -39,7 +40,8 @@ int main( int argc, const char * argv[] )
   std::cout << std::endl;
   
   std::string testSolverParamFile = "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/testSolverParams.txt";
-  solvers::TestSolver simpleAdvDiff( testSolverParamFile );
+  //solvers::TestSolver simpleAdvDiff( testSolverParamFile );
+  solvers::HighOrderSolver simpleAdvDiff( testSolverParamFile );
   simpleAdvDiff.runSimulation();
   
   return 0;

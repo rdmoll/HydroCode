@@ -50,54 +50,51 @@ void HighOrderSolver::setInitConditions( std::vector< std::vector< double > >& T
   }
 }
 
-void HighOrderSolver::calcNonLinDx( std::vector< std::vector< double > >& f1_phys,
-                               std::vector< std::vector< std::complex< double > > >& f2_spec,
-                               std::vector< std::vector< std::complex< double > > >& nl_spec )
+void HighOrderSolver::calcNonLin( variables::VectorVar& u,
+                                  std::vector< std::vector< std::complex< double > > >& f_spec,
+                                  std::vector< std::vector< std::complex< double > > >& NL_spec )
 {
   std::vector< std::vector< std::complex< double > > >
-    df2dx_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  std::vector< std::vector< double > > df2dx_phys( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< double > > nl_phys( Nx, std::vector< double >( Ny, 0.0 ) );
+    dfdx_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
+  std::vector< std::vector< std::complex< double > > >
+    dfdy_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
+  std::vector< std::vector< double > > dfdx_phys( Nx, std::vector< double >( Ny, 0.0 ) );
+  std::vector< std::vector< double > > dfdy_phys( Nx, std::vector< double >( Ny, 0.0 ) );
+  std::vector< std::vector< double > > NL_xPhys( Nx, std::vector< double >( Ny, 0.0 ) );
+  std::vector< std::vector< double > > NL_yPhys( Nx, std::vector< double >( Ny, 0.0 ) );
+  std::vector< std::vector< std::complex< double > > >
+    NL_xSpec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
+  std::vector< std::vector< std::complex< double > > >
+    NL_ySpec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
   
-  ops.calcDerivX( f2_spec, df2dx_spec, Nx, Ny, Lx );
+  ops.calcDerivX( f_spec, dfdx_spec, Nx, Ny, Lx );
+  ops.calcDerivY( f_spec, dfdy_spec, Nx, Ny, Ly );
   
-  fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, df2dx_spec, df2dx_phys );
-  fft.scaleOutput( ( int ) Nx, ( int ) Ny, df2dx_phys );
+  fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, dfdx_spec, dfdx_phys );
+  fft.scaleOutput( ( int ) Nx, ( int ) Ny, dfdx_phys );
+  
+  fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, dfdy_spec, dfdy_phys );
+  fft.scaleOutput( ( int ) Nx, ( int ) Ny, dfdy_phys );
   
   for( int i = 0; i < Nx; i++ )
   {
     for( int j = 0; j < Ny; j++ )
     {
-      nl_phys[ i ][ j ] = f1_phys[ i ][ j ] * df2dx_phys[ i ][ j ];
+      NL_xPhys[ i ][ j ] = u.xTime1[ i ][ j ] * dfdx_phys[ i ][ j ];
+      NL_yPhys[ i ][ j ] = u.yTime1[ i ][ j ] * dfdy_phys[ i ][ j ];
     }
   }
   
-  fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, nl_phys, nl_spec );
-}
-
-void HighOrderSolver::calcNonLinDy( std::vector< std::vector< double > >& f1_phys,
-                               std::vector< std::vector< std::complex< double > > >& f2_spec,
-                               std::vector< std::vector< std::complex< double > > >& nl_spec )
-{
-  std::vector< std::vector< std::complex< double > > >
-    df2dx_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  std::vector< std::vector< double > > df2dx_phys( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< double > > nl_phys( Nx, std::vector< double >( Ny, 0.0 ) );
+  fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, NL_xPhys, NL_xSpec );
+  fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, NL_yPhys, NL_ySpec );
   
-  ops.calcDerivY( f2_spec, df2dx_spec, Nx, Ny, Lx );
-  
-  fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, df2dx_spec, df2dx_phys );
-  fft.scaleOutput( ( int ) Nx, ( int ) Ny, df2dx_phys );
-  
-  for( int i = 0; i < Nx; i++ )
+  for( int i = 0 ; i < Nx ; i++ )
   {
-    for( int j = 0; j < Ny; j++ )
+    for( int j = 0 ; j < nOutY ; j++ )
     {
-      nl_phys[ i ][ j ] = f1_phys[ i ][ j ] * df2dx_phys[ i ][ j ];
+      NL_spec[ i ][ j ] = NL_xSpec[ i ][ j ] + NL_ySpec[ i ][ j ];
     }
   }
-  
-  fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, nl_phys, nl_spec );
 }
 
 void HighOrderSolver::solve( std::vector< std::vector< std::complex< double > > >& f_spec,
@@ -125,6 +122,24 @@ void HighOrderSolver::solve( std::vector< std::vector< std::complex< double > > 
   }
 }
 
+void HighOrderSolver::resetTimePointers( variables::ScalarVar& scalar )
+{
+  scalar.temp = scalar.time0;
+  scalar.time0 = scalar.time1;
+  scalar.time1 = scalar.temp;
+}
+
+void HighOrderSolver::resetTimePointers( variables::VectorVar& vec )
+{
+  vec.temp = vec.xTime0;
+  vec.xTime0 = vec.xTime1;
+  vec.xTime1 = vec.temp;
+  
+  vec.temp = vec.yTime0;
+  vec.yTime0 = vec.yTime1;
+  vec.yTime1 = vec.temp;
+}
+
 void HighOrderSolver::runSimulation()
 {
   std::cout << "Running solver..." << std::endl;
@@ -137,108 +152,58 @@ void HighOrderSolver::runSimulation()
   io::ioNetCDF testWriter( testWriterFile, Nx, Ny, 'w' );
   
   // Initialize arrays
-  std::vector< std::vector< double > > T0_phys( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< double > > u0_phys( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< double > > v0_phys( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< double > > T1_phys( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< double > > u1_phys( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< double > > v1_phys( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< double > > temp( Nx, std::vector< double >( Ny, 0.0 ) );
+  variables::ScalarVar T( Nx, Ny );
+  variables::VectorVar u( Nx, Ny );
   
   std::vector< std::vector< std::complex< double > > >
-    T_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
+    NL_T_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
   std::vector< std::vector< std::complex< double > > >
-    u_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
+    NL_ux_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
   std::vector< std::vector< std::complex< double > > >
-    v_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  
-  std::vector< std::vector< std::complex< double > > >
-    nl_T_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  std::vector< std::vector< std::complex< double > > >
-    nl_T_specDx( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  std::vector< std::vector< std::complex< double > > >
-    nl_T_specDy( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  
-  std::vector< std::vector< std::complex< double > > >
-    nl_u_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  std::vector< std::vector< std::complex< double > > >
-    nl_u_specDx( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  std::vector< std::vector< std::complex< double > > >
-    nl_u_specDy( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  
-  std::vector< std::vector< std::complex< double > > >
-    nl_v_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  std::vector< std::vector< std::complex< double > > >
-    nl_v_specDx( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  std::vector< std::vector< std::complex< double > > >
-    nl_v_specDy( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
+    NL_uy_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
   
   // Set initial conditions
-  setInitConditions( T0_phys, u0_phys, v0_phys );
-  testWriter.write_T( 0, T0_phys );
-  testWriter.write_u( 0, u0_phys );
-  testWriter.write_v( 0, v0_phys );
+  setInitConditions( T.time1, u.xTime1, u.yTime1 );
+  testWriter.write_T( 0, T.time1 );
+  testWriter.write_u( 0, u.xTime1 );
+  testWriter.write_v( 0, u.yTime1 );
   
   // Start time step loop
   for( size_t t = 0; t < nSteps; t++)
   {
     // Transform: phys --> spec
-    fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, T0_phys, T_spec );
-    fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, u0_phys, u_spec );
-    fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, v0_phys, v_spec );
+    fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, T.time1, T.spec );
+    fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, u.xTime1, u.xSpec );
+    fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, u.yTime1, u.ySpec );
     
     // Calculate Non-linear terms
-    calcNonLinDx( u0_phys, T_spec, nl_T_specDx );
-    calcNonLinDy( v0_phys, T_spec, nl_T_specDy );
-    
-    calcNonLinDx( u0_phys, u_spec, nl_u_specDx );
-    calcNonLinDy( v0_phys, u_spec, nl_u_specDy );
-    
-    //calcNonLinDx( u0_phys, v_spec, nl_v_specDx );
-    //calcNonLinDy( v0_phys, v_spec, nl_v_specDy );
-    
-    for( int i = 0 ; i < Nx ; i++ )
-    {
-      for( int j = 0 ; j < nOutY ; j++ )
-      {
-        nl_T_spec[ i ][ j ] = nl_T_specDx[ i ][ j ] + nl_T_specDy[ i ][ j ];
-        nl_u_spec[ i ][ j ] = nl_u_specDx[ i ][ j ] + nl_u_specDy[ i ][ j ];
-        nl_v_spec[ i ][ j ] = nl_v_specDx[ i ][ j ] + nl_v_specDy[ i ][ j ];
-      }
-    }
+    calcNonLin( u, T.spec, NL_T_spec );
+    calcNonLin( u, u.xSpec, NL_ux_spec );
+    calcNonLin( u, u.ySpec, NL_uy_spec );
     
     // Calculate New time step
-    solve( T_spec, nl_T_spec, kappa );
-    solve( u_spec, nl_u_spec, nu );
-    //solve( v_spec, nl_v_spec, nu );
+    solve( T.spec, NL_T_spec, kappa );
+    solve( u.xSpec, NL_ux_spec, nu );
+    solve( u.ySpec, NL_uy_spec, nu );
     
     // Transform: spec --> phys
-    fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, T_spec, T1_phys );
-    fft.scaleOutput( ( int ) Nx, ( int ) Ny, T1_phys );
+    fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, T.spec, T.time0 );
+    fft.scaleOutput( ( int ) Nx, ( int ) Ny, T.time0 );
     
-    fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, u_spec, u1_phys );
-    fft.scaleOutput( ( int ) Nx, ( int ) Ny, u1_phys );
+    fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, u.xSpec, u.xTime0 );
+    fft.scaleOutput( ( int ) Nx, ( int ) Ny, u.xTime0 );
     
-    fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, v_spec, v1_phys );
-    fft.scaleOutput( ( int ) Nx, ( int ) Ny, v1_phys );
+    fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, u.ySpec, u.yTime0 );
+    fft.scaleOutput( ( int ) Nx, ( int ) Ny, u.yTime0 );
     
-    // Write T1 to file
-    testWriter.write_T( t + 1, T1_phys );
-    testWriter.write_u( t + 1, u1_phys );
-    testWriter.write_v( t + 1, v1_phys );
+    // Write to file
+    testWriter.write_T( t + 1, T.time0 );
+    testWriter.write_u( t + 1, u.xTime0 );
+    testWriter.write_v( t + 1, u.yTime0 );
     
     // Reset pointers
-    temp = T1_phys;
-    T1_phys = T0_phys;
-    T0_phys = temp;
-    
-    temp = u1_phys;
-    u1_phys = u0_phys;
-    u0_phys = temp;
-    
-    temp = v1_phys;
-    v1_phys = v0_phys;
-    v0_phys = temp;
+    resetTimePointers( T );
+    resetTimePointers( u );
   }
   
   // End timer
