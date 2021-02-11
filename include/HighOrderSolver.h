@@ -33,7 +33,7 @@ public:
                    std::vector< std::vector< std::complex< double > > >& NL_spec );
   void solve( std::vector< std::vector< std::complex< double > > >& f0_spec,
               std::vector< std::vector< std::complex< double > > >& nl_spec,
-              double diffusivity );
+              double diffFac );
   void resetTimePointers( variables::ScalarVar& scalar );
   void resetTimePointers( variables::VectorVar& vec );
   void runSimulation();
@@ -45,7 +45,7 @@ protected:
   double deltaT;
   size_t Nx, Ny;
   double Lx, Ly;
-  double nu, kappa;
+  double nu, kappa, nuFac, kappaFac;
   std::string testWriterFile;
   
   int nOutX;
@@ -54,6 +54,17 @@ protected:
   
   hydroCode::FourierTransforms fft;
   mathOps::Derivatives ops;
+  
+  std::vector< std::vector< std::complex< double > > > dfdx_spec;
+  std::vector< std::vector< std::complex< double > > > dfdy_spec;
+  std::vector< std::vector< double > > dfdx_phys;
+  std::vector< std::vector< double > > dfdy_phys;
+  std::vector< std::vector< double > > NL_xPhys;
+  std::vector< std::vector< double > > NL_yPhys;
+  std::vector< std::vector< std::complex< double > > > NL_xSpec;
+  std::vector< std::vector< std::complex< double > > > NL_ySpec;
+  
+  std::vector< double > wvNumX1, wvNumX2, wvNumY;
 };
 
 }

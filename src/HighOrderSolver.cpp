@@ -26,9 +26,21 @@ HighOrderSolver::HighOrderSolver( std::string paramFile )
   kappa = parameterFile.dParam[ "kappa" ];
   testWriterFile = parameterFile.strParam[ "dataFile" ];
   
+  nuFac = 4.0 * pi * pi * deltaT * nu;
+  kappaFac = 4.0 * pi * pi * deltaT * kappa;
+  
   nOutX = std::floor( Nx / 2 + 1 );
   nOutY = std::floor( Ny / 2 + 1 );
   totN = Nx * Ny;
+  
+  dfdx_spec.resize( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
+  dfdy_spec.resize( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
+  dfdx_phys.resize( Nx, std::vector< double >( Ny, 0.0 ) );
+  dfdy_phys.resize( Nx, std::vector< double >( Ny, 0.0 ) );
+  NL_xPhys.resize( Nx, std::vector< double >( Ny, 0.0 ) );
+  NL_yPhys.resize( Nx, std::vector< double >( Ny, 0.0 ) );
+  NL_xSpec.resize( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
+  NL_ySpec.resize( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
 }
 
 HighOrderSolver::~HighOrderSolver()
@@ -36,8 +48,8 @@ HighOrderSolver::~HighOrderSolver()
 }
 
 void HighOrderSolver::setInitConditions( std::vector< std::vector< double > >& T0_phys,
-                                    std::vector< std::vector< double > >& u0_phys,
-                                    std::vector< std::vector< double > >& v0_phys )
+                                         std::vector< std::vector< double > >& u0_phys,
+                                         std::vector< std::vector< double > >& v0_phys )
 {
   for( int i = 0; i < Nx; i++ )
   {
@@ -54,19 +66,6 @@ void HighOrderSolver::calcNonLin( variables::VectorVar& u,
                                   std::vector< std::vector< std::complex< double > > >& f_spec,
                                   std::vector< std::vector< std::complex< double > > >& NL_spec )
 {
-  std::vector< std::vector< std::complex< double > > >
-    dfdx_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  std::vector< std::vector< std::complex< double > > >
-    dfdy_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  std::vector< std::vector< double > > dfdx_phys( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< double > > dfdy_phys( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< double > > NL_xPhys( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< double > > NL_yPhys( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< std::complex< double > > >
-    NL_xSpec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  std::vector< std::vector< std::complex< double > > >
-    NL_ySpec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  
   ops.calcDerivX( f_spec, dfdx_spec, Nx, Ny, Lx );
   ops.calcDerivY( f_spec, dfdy_spec, Nx, Ny, Ly );
   
@@ -98,11 +97,9 @@ void HighOrderSolver::calcNonLin( variables::VectorVar& u,
 }
 
 void HighOrderSolver::solve( std::vector< std::vector< std::complex< double > > >& f_spec,
-                        std::vector< std::vector< std::complex< double > > >& nl_spec,
-                        double diffusivity )
+                             std::vector< std::vector< std::complex< double > > >& nl_spec,
+                             double diffFac )
 {
-  double diffFac = 4.0 * pi * pi * deltaT * diffusivity;
-  
   for( int i = 0 ; i < nOutX ; i++ )
   {
     for( int j = 0 ; j < nOutY ; j++ )
@@ -182,9 +179,9 @@ void HighOrderSolver::runSimulation()
     calcNonLin( u, u.ySpec, NL_uy_spec );
     
     // Calculate New time step
-    solve( T.spec, NL_T_spec, kappa );
-    solve( u.xSpec, NL_ux_spec, nu );
-    solve( u.ySpec, NL_uy_spec, nu );
+    solve( T.spec, NL_T_spec, kappaFac );
+    solve( u.xSpec, NL_ux_spec, nuFac );
+    solve( u.ySpec, NL_uy_spec, nuFac );
     
     // Transform: spec --> phys
     fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, T.spec, T.time0 );
