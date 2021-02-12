@@ -64,7 +64,7 @@ protected:
   std::vector< std::vector< std::complex< double > > > NL_xSpec;
   std::vector< std::vector< std::complex< double > > > NL_ySpec;
   
-  std::vector< double > wvNumX1, wvNumX2, wvNumY;
+  std::vector< double > wvNumX, wvNumY;
 };
 
 }
