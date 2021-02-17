@@ -80,7 +80,7 @@ void HighOrderSolver::setInitConditions( std::vector< std::vector< double > >& T
   }
 }
 
-void HighOrderSolver::calcNonLin( variables::VectorVar& u,
+void HighOrderSolver::calcNonLin( variables::VectorVar& u_phys,
                                   std::vector< std::vector< std::complex< double > > >& f_spec,
                                   std::vector< std::vector< std::complex< double > > >& NL_spec )
 {
@@ -97,8 +97,8 @@ void HighOrderSolver::calcNonLin( variables::VectorVar& u,
   {
     for( int j = 0; j < Ny; ++j )
     {
-      NL_xPhys[ i ][ j ] = u.xTime1[ i ][ j ] * dfdx_phys[ i ][ j ];
-      NL_yPhys[ i ][ j ] = u.yTime1[ i ][ j ] * dfdy_phys[ i ][ j ];
+      NL_xPhys[ i ][ j ] = u_phys.xTime1[ i ][ j ] * dfdx_phys[ i ][ j ];
+      NL_yPhys[ i ][ j ] = u_phys.yTime1[ i ][ j ] * dfdy_phys[ i ][ j ];
     }
   }
   
@@ -168,6 +168,7 @@ void HighOrderSolver::runSimulation()
   
   // Initialize arrays
   variables::ScalarVar T( Nx, Ny );
+  variables::ScalarVar C( Nx, Ny );
   variables::VectorVar u( Nx, Ny );
   
   std::vector< std::vector< std::complex< double > > >

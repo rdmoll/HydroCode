@@ -28,7 +28,7 @@ public:
   void setInitConditions( std::vector< std::vector< double > >& T0_phys,
                          std::vector< std::vector< double > >& u0_phys,
                          std::vector< std::vector< double > >& v0_phys );
-  void calcNonLin( variables::VectorVar& u,
+  void calcNonLin( variables::VectorVar& u_phys,
                    std::vector< std::vector< std::complex< double > > >& f_spec,
                    std::vector< std::vector< std::complex< double > > >& NL_spec );
   void solve( std::vector< std::vector< std::complex< double > > >& f0_spec,
