@@ -23,11 +23,13 @@ HighOrderSolver::HighOrderSolver( std::string paramFile )
   Lx = parameterFile.dParam[ "Lx" ];
   Ly = parameterFile.dParam[ "Ly" ];
   nu = parameterFile.dParam[ "nu" ];
-  kappa = parameterFile.dParam[ "kappa" ];
+  kappaT = parameterFile.dParam[ "kappa" ];
+  kappaC = kappaT; //parameterFile.dParam[ "kappa" ];
   testWriterFile = parameterFile.strParam[ "dataFile" ];
   
   nuFac = 4.0 * pi * pi * deltaT * nu;
-  kappaFac = 4.0 * pi * pi * deltaT * kappa;
+  kappaFacT = 4.0 * pi * pi * deltaT * kappaT;
+  kappaFacC = 4.0 * pi * pi * deltaT * kappaC;
   
   nOutX = std::floor( Nx / 2 + 1 );
   nOutY = std::floor( Ny / 2 + 1 );
@@ -66,6 +68,7 @@ HighOrderSolver::~HighOrderSolver()
 }
 
 void HighOrderSolver::setInitConditions( std::vector< std::vector< double > >& T0_phys,
+                                         std::vector< std::vector< double > >& C0_phys,
                                          std::vector< std::vector< double > >& u0_phys,
                                          std::vector< std::vector< double > >& v0_phys )
 {
@@ -74,6 +77,7 @@ void HighOrderSolver::setInitConditions( std::vector< std::vector< double > >& T
     for( int j = 0; j < Ny; ++j )
     {
       T0_phys[ i ][ j ] = std::cos( i * ( 2.0 * pi / Nx ) ) * std::sin( j * ( 2.0 * pi / Ny ) );
+      C0_phys[ i ][ j ] = std::cos( i * ( 2.0 * pi / Nx ) ) * std::sin( j * ( 2.0 * pi / Ny ) );
       u0_phys[ i ][ j ] = std::cos( i * ( 2.0 * pi / Nx ) ) * std::cos( j * ( 2.0 * pi / Nx ) );
       v0_phys[ i ][ j ] = 0.0 * std::sin( i * ( 2.0 * pi / Nx ) ) * std::sin( j * ( 4.0 * pi / Ny ) );
     }
@@ -174,12 +178,14 @@ void HighOrderSolver::runSimulation()
   std::vector< std::vector< std::complex< double > > >
     NL_T_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
   std::vector< std::vector< std::complex< double > > >
+    NL_C_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
+  std::vector< std::vector< std::complex< double > > >
     NL_ux_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
   std::vector< std::vector< std::complex< double > > >
     NL_uy_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
   
   // Set initial conditions
-  setInitConditions( T.time1, u.xTime1, u.yTime1 );
+  setInitConditions( T.time1, C.time1, u.xTime1, u.yTime1 );
   testWriter.write_T( 0, T.time1 );
   testWriter.write_u( 0, u.xTime1 );
   testWriter.write_v( 0, u.yTime1 );
@@ -189,22 +195,28 @@ void HighOrderSolver::runSimulation()
   {
     // Transform: phys --> spec
     fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, T.time1, T.spec );
+    fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, C.time1, C.spec );
     fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, u.xTime1, u.xSpec );
     fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, u.yTime1, u.ySpec );
     
     // Calculate Non-linear terms
     calcNonLin( u, T.spec, NL_T_spec );
+    calcNonLin( u, C.spec, NL_C_spec );
     calcNonLin( u, u.xSpec, NL_ux_spec );
     calcNonLin( u, u.ySpec, NL_uy_spec );
     
     // Calculate New time step
-    solve( T.spec, NL_T_spec, kappaFac );
+    solve( T.spec, NL_T_spec, kappaFacT );
+    solve( C.spec, NL_C_spec, kappaFacC );
     solve( u.xSpec, NL_ux_spec, nuFac );
     solve( u.ySpec, NL_uy_spec, nuFac );
     
     // Transform: spec --> phys
     fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, T.spec, T.time0 );
     fft.scaleOutput( ( int ) Nx, ( int ) Ny, T.time0 );
+    
+    fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, C.spec, C.time0 );
+    fft.scaleOutput( ( int ) Nx, ( int ) Ny, C.time0 );
     
     fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, u.xSpec, u.xTime0 );
     fft.scaleOutput( ( int ) Nx, ( int ) Ny, u.xTime0 );
@@ -219,6 +231,7 @@ void HighOrderSolver::runSimulation()
     
     // Reset pointers
     resetTimePointers( T );
+    resetTimePointers( C );
     resetTimePointers( u );
   }
   

@@ -26,8 +26,9 @@ public:
   ~HighOrderSolver();
   
   void setInitConditions( std::vector< std::vector< double > >& T0_phys,
-                         std::vector< std::vector< double > >& u0_phys,
-                         std::vector< std::vector< double > >& v0_phys );
+                          std::vector< std::vector< double > >& C0_phys,
+                          std::vector< std::vector< double > >& u0_phys,
+                          std::vector< std::vector< double > >& v0_phys );
   void calcNonLin( variables::VectorVar& u_phys,
                    std::vector< std::vector< std::complex< double > > >& f_spec,
                    std::vector< std::vector< std::complex< double > > >& NL_spec );
@@ -45,7 +46,7 @@ protected:
   double deltaT;
   size_t Nx, Ny;
   double Lx, Ly;
-  double nu, kappa, nuFac, kappaFac;
+  double nu, kappaT, kappaC, nuFac, kappaFacT, kappaFacC;
   std::string testWriterFile;
   
   int nOutX;
