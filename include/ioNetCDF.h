@@ -22,14 +22,16 @@ public:
   ~ioNetCDF();
   
   void read_T( size_t readIndex, std::vector< std::vector< double > >& dataVector );
+  void read_C( size_t readIndex, std::vector< std::vector< double > >& dataVector );
   void read_u( size_t readIndex, std::vector< std::vector< double > >& dataVector );
   void read_v( size_t readIndex, std::vector< std::vector< double > >& dataVector );
   void write_T( size_t writeIndex, std::vector< std::vector< double > >& dataVector );
+  void write_C( size_t writeIndex, std::vector< std::vector< double > >& dataVector );
   void write_u( size_t writeIndex, std::vector< std::vector< double > >& dataVector );
   void write_v( size_t writeIndex, std::vector< std::vector< double > >& dataVector );
   
   netCDF::NcFile _dataFile;
-  netCDF::NcVar _data_T, _data_u, _data_v;
+  netCDF::NcVar _data_T, _data_C, _data_u, _data_v;
   size_t _xDimSize, _yDimSize;
   std::vector< size_t > _startp, _countp;
 };

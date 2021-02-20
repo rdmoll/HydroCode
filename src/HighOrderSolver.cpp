@@ -23,8 +23,8 @@ HighOrderSolver::HighOrderSolver( std::string paramFile )
   Lx = parameterFile.dParam[ "Lx" ];
   Ly = parameterFile.dParam[ "Ly" ];
   nu = parameterFile.dParam[ "nu" ];
-  kappaT = parameterFile.dParam[ "kappa" ];
-  kappaC = kappaT; //parameterFile.dParam[ "kappa" ];
+  kappaT = parameterFile.dParam[ "kappaT" ];
+  kappaC = parameterFile.dParam[ "kappaC" ];
   testWriterFile = parameterFile.strParam[ "dataFile" ];
   
   nuFac = 4.0 * pi * pi * deltaT * nu;
@@ -187,6 +187,7 @@ void HighOrderSolver::runSimulation()
   // Set initial conditions
   setInitConditions( T.time1, C.time1, u.xTime1, u.yTime1 );
   testWriter.write_T( 0, T.time1 );
+  testWriter.write_C( 0, C.time1 );
   testWriter.write_u( 0, u.xTime1 );
   testWriter.write_v( 0, u.yTime1 );
   
@@ -226,6 +227,7 @@ void HighOrderSolver::runSimulation()
     
     // Write to file
     testWriter.write_T( t + 1, T.time0 );
+    testWriter.write_C( t + 1, C.time0 );
     testWriter.write_u( t + 1, u.xTime0 );
     testWriter.write_v( t + 1, u.yTime0 );
     
