@@ -146,6 +146,11 @@ void HighOrderSolver::resetTimePointers( variables::ScalarVar& scalar )
   scalar.temp = scalar.time0;
   scalar.time0 = scalar.time1;
   scalar.time1 = scalar.temp;
+  
+  //scalar.temp = scalar.time2;
+  //scalar.time2 = scalar.time1;
+  //scalar.time1 = scalar.time0;
+  //scalar.time0 = scalar.temp;
 }
 
 void HighOrderSolver::resetTimePointers( variables::VectorVar& vec )
@@ -154,9 +159,19 @@ void HighOrderSolver::resetTimePointers( variables::VectorVar& vec )
   vec.xTime0 = vec.xTime1;
   vec.xTime1 = vec.temp;
   
+  //vec.temp = vec.xTime2;
+  //vec.xTime2 = vec.xTime1;
+  //vec.xTime1 = vec.xTime0;
+  //vec.xTime0 = vec.temp;
+  
   vec.temp = vec.yTime0;
   vec.yTime0 = vec.yTime1;
   vec.yTime1 = vec.temp;
+  
+  //vec.temp = vec.yTime2;
+  //vec.yTime2 = vec.yTime1;
+  //vec.yTime1 = vec.yTime0;
+  //vec.yTime0 = vec.temp;
 }
 
 void HighOrderSolver::runSimulation()
