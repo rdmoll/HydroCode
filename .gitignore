@@ -36,3 +36,4 @@
 # Misc
 *.mp4
 *.nc
+build/*

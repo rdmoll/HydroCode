@@ -1,0 +1,9 @@
+set( FFTW_DIR /usr/local )
+
+set( FFTW_LIB_NAME "libfftw3.a" )
+
+find_path( FFTW_INCLUDE_DIR NAMES fftw3.h PATHS ${FFTW_DIR}/include )
+find_library( FFTW_LIBRARY NAMES ${FFTW_LIB_NAME} PATHS ${FFTW_DIR}/lib )
+
+mark_as_advanced( FFTW_INCLUDE_DIRS )
+mark_as_advanced( FFTW_LIBRARY )
