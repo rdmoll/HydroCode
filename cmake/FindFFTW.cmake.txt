@@ -1,9 +1,11 @@
-set( FFTW_DIR /usr/local )
+# Find FFTW files
 
-set( FFTW_LIB_NAME "libfftw3.a" )
+#set( FFTW_DIR /usr/local )
 
-find_path( FFTW_INCLUDE_DIR NAMES fftw3.h PATHS ${FFTW_DIR}/include )
-find_library( FFTW_LIBRARY NAMES ${FFTW_LIB_NAME} PATHS ${FFTW_DIR}/lib )
+#set( FFTW_LIB_NAME "libfftw3.a" )
 
-mark_as_advanced( FFTW_INCLUDE_DIRS )
-mark_as_advanced( FFTW_LIBRARY )
+#find_path( FFTW_INCLUDE_DIR NAMES fftw3.h PATHS ${FFTW_DIR}/include )
+#find_library( FFTW_LIBRARY NAMES ${FFTW_LIB_NAME} PATHS ${FFTW_DIR}/lib )
+
+#mark_as_advanced( FFTW_INCLUDE_DIRS )
+#mark_as_advanced( FFTW_LIBRARY )
