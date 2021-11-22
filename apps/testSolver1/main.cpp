@@ -8,12 +8,12 @@
 #include <iostream>
 #include <complex>
 #include <netcdf>
-#include "../include/TestSuite.h"
-#include "../include/FourierTransforms.h"
-#include "../include/ioNetCDF.h"
-#include "../include/TestSolver.h"
-#include "../include/HighOrderSolver.h"
-#include "../include/variables.h"
+#include "TestSuite.h"
+#include "FourierTransforms.h"
+#include "ioNetCDF.h"
+#include "TestSolver.h"
+#include "HighOrderSolver.h"
+#include "variables.h"
 
 int main( int argc, const char * argv[] )
 {
