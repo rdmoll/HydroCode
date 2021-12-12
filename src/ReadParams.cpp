@@ -5,7 +5,7 @@
 //  Created by Ryan Moll on 12/21/20.
 //
 
-#include "ReadParams.h"
+#include "../include/ReadParams.h"
 
 namespace io
 {

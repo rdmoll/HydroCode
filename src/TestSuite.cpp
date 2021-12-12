@@ -5,7 +5,7 @@
 //  Created by Ryan Moll on 12/21/20.
 //
 
-#include "TestSuite.h"
+#include "../include/TestSuite.h"
 
 namespace diagnostics
 {
@@ -25,7 +25,7 @@ void TestSuite::testReadParams()
   std::cout << "testReadParams           : ";
   
   const char* delimiter = "=";
-  const char* filename = "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/parametersTest.txt";
+  const char* filename = "/Users/ryanmoll/Documents/dev/projects/HydroCode/tests/parametersTest.txt";
   io::ReadParams parameterFile( filename, delimiter );
   
   double value1 = parameterFile.dParam[ "value1" ];
@@ -67,213 +67,130 @@ void TestSuite::testReadParams()
   std::cout << "PASS" << std::endl;
 }
 
-void TestSuite::testFourierTransforms1()
+void TestSuite::testFourierTransform1D()
 {
   int N = 16;
   int nOut = std::floor( N / 2 + 1 );
   
-  std::vector< double > realTruth( N, 0.0 );
-  std::vector< std::complex< double > > compTruth( nOut, std::complex< double >( 0.0, 0.0 ) );
+  Scalar1D< double > realTruth( N );
+  Scalar1D< std::complex< double > > compTruth( nOut );
   
-  hydroCode::FourierTransforms fft;
-  
-  std::vector< double > in( N, 0.0 );
-  std::vector< std::complex< double > > out( nOut, std::complex< double >( 0.0, 0.0 ) );
+  Scalar1D< double > in( N );
+  Scalar1D< std::complex< double > > out( nOut );
   
   for( int i = 0; i < N; i++ )
   {
-    realTruth[ i ] = std::cos( i * ( 2 * pi / N ) );
-    in[ i ] = std::cos( i * ( 2 * pi / N ) );
+    realTruth( i ) = std::cos( i * ( 2 * pi / N ) );
+    in( i ) = std::cos( i * ( 2 * pi / N ) );
   }
   
-  compTruth[ 1 ] = std::complex< double >( 1.0, 0.0 );
+  compTruth( 1 ) = std::complex< double >( 1.0, 0.0 );
   
-  fft.fft_r2c( in, out );
+  fft::fft_r2c_1d( in, out );
   
   double compMSE = 0.0;
   for( int i = 0 ; i < nOut ; i++ )
   {
-    compMSE = compMSE + std::pow( compTruth[ i ].real() - out[ i ].real() / 8.0, 2.0 )
-                      + std::pow( compTruth[ i ].imag() - out[ i ].imag() / 8.0, 2.0 );
+    compMSE = compMSE + std::pow( compTruth( i ).real() - out( i ).real() / 8.0, 2.0 )
+                      + std::pow( compTruth( i ).imag() - out( i ).imag() / 8.0, 2.0 );
   }
   compMSE /= 2.0 * nOut;
   
-  fft.fft_c2r( out, in );
+  fft::fft_c2r_1d( out, in );
   
   double realMSE = 0.0;
   for( int i = 0; i < N; i++ )
   {
-    realMSE += std::pow( realTruth[ i ] - in[ i ] / 16.0, 2.0 );
+    realMSE += std::pow( realTruth( i ) - in( i ) / 16.0, 2.0 );
   }
   realMSE /= N;
   
-  std::cout << "testFourierTransforms1   : complex sigma = " << std::sqrt( compMSE ) << " , " <<
+  std::cout << "testFourierTransform1D   : complex sigma = " << std::sqrt( compMSE ) << " , " <<
                                              "real sigma = " << std::sqrt( realMSE ) << std::endl;
 }
 
-void TestSuite::testFourierTransforms2()
-{
-  int N = 16;
-  int nOut = std::floor( N / 2 + 1 );
-  
-  std::vector< double > realTruth( N, 0.0 );
-  std::vector< std::complex< double > > compTruth( nOut, std::complex< double >( 0.0, 0.0 ) );
-  
-  hydroCode::FourierTransforms fftNew( N );
-  
-  for( int i = 0; i < N; i++ )
-  {
-    realTruth[ i ] = std::cos( i * ( 2 * pi / N ) );
-    fftNew.realArray[ i ] = std::cos( i * ( 2 * pi / N ) );
-  }
-  
-  compTruth[ 1 ] = std::complex< double >( 1.0, 0.0 );
-  
-  fftNew.fft_r2c();
-  
-  double compMSE = 0.0;
-  for( int i = 0 ; i < nOut ; i++ )
-  {
-    compMSE = compMSE + std::pow( compTruth[ i ].real() - fftNew.compArray[ i ][ 0 ] / 8.0, 2.0 )
-                      + std::pow( compTruth[ i ].imag() - fftNew.compArray[ i ][ 1 ] / 8.0, 2.0 );
-  }
-  compMSE /= 2.0 * nOut;
-  
-  fftNew.fft_c2r( );
-  
-  double realMSE = 0.0;
-  for( int i = 0; i < N; i++ )
-  {
-    realMSE += std::pow( realTruth[ i ] - fftNew.realArray[ i ] / 16.0, 2.0 );
-  }
-  realMSE /= N;
-  
-  std::cout << "testFourierTransforms2   : complex sigma = " << std::sqrt( compMSE ) << " , " <<
-                                            "real sigma = " << std::sqrt( realMSE ) << std::endl;
-}
-
-void TestSuite::testFourierTransforms_2D()
+void TestSuite::testFourierTransform2D()
 {
   size_t Nx = 16;
   size_t Ny = 16;
   //int nOutX = std::floor( Nx / 2 + 1 );
   int nOutY = std::floor( Ny / 2 + 1 );
   
-  std::vector< std::vector< double > > realTruth( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< double > > realTest( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< std::complex< double > > >
-    compTruth( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  std::vector< std::vector< std::complex< double > > >
-    compTest( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  
-  hydroCode::FourierTransforms fft;
+  Scalar2D< double > realTruth( Nx, Ny );
+  Scalar2D< double > realTest( Nx, Ny );
+  Scalar2D< std::complex< double > > compTruth( Nx, nOutY );
+  Scalar2D< std::complex< double > > compTest( Nx, nOutY );
   
   for( int i = 0; i < Nx; i++ )
   {
     for( int j = 0; j < Ny; j++ )
     {
-      realTruth[ i ][ j ] = std::cos( i * ( 2 * pi / Nx ) ) * std::cos( j * ( 2 * pi / Ny ) );
+      realTruth( i, j ) = std::cos( i * ( 2 * pi / Nx ) ) * std::cos( j * ( 2 * pi / Ny ) );
     }
   }
   
-  compTruth[ 1 ][ 1 ] = std::complex< double >( 1.0, 0.0 );
-  compTruth[ Nx - 1 ][ 1 ] = std::complex< double >( 1.0, 0.0 );
+  compTruth( 1, 1 ) = std::complex< double >( 1.0, 0.0 );
+  compTruth( Nx - 1, 1 ) = std::complex< double >( 1.0, 0.0 );
   
-  fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, realTruth, compTest );
+  fft::fft_r2c_2d( realTruth, compTest );
   
   double compMSE = 0.0;
   for( int i = 0 ; i < Nx ; i++ )
   {
     for( int j = 0 ; j < nOutY ; j++ )
     {
-      compMSE = compMSE + std::pow( compTruth[ i ][ j ].real() - compTest[ i ][ j ].real() / 64, 2.0 )
-                        + std::pow( compTruth[ i ][ j ].imag() - compTest[ i ][ j ].imag() / 64, 2.0 );
+      compMSE = compMSE + std::pow( compTruth( i, j ).real() - compTest( i, j ).real() / 64, 2.0 )
+                        + std::pow( compTruth( i, j ).imag() - compTest( i, j ).imag() / 64, 2.0 );
     }
   }
   compMSE /= 2.0 * Nx * nOutY;
   
-  fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, compTest, realTest );
+  fft::fft_c2r_2d( compTest, realTest );
   
   double realMSE = 0.0;
   for( int i = 0; i < Nx; i++ )
   {
     for( int j = 0; j < Ny; j++ )
     {
-      realMSE += std::pow( realTruth[ i ][ j ] - realTest[ i ][ j ] / ( Nx * Ny ), 2.0 );
+      realMSE += std::pow( realTruth( i, j ) - realTest( i, j ) / ( Nx * Ny ), 2.0 );
     }
   }
   realMSE /= ( Nx * Ny );
   
-  std::cout << "testFourierTransforms_2D : complex sigma = " << std::sqrt( compMSE ) << " , " <<
+  std::cout << "testFourierTransform2D   : complex sigma = " << std::sqrt( compMSE ) << " , " <<
                                              "real sigma = " << std::sqrt( realMSE ) << std::endl;
 }
 
-void TestSuite::testDeriv()
+void TestSuite::testDeriv1D()
 {
   int N = 16;
   int nOut = std::floor( N / 2 + 1 );
   
-  std::vector< double > realTruth( N, 0.0 );
-  std::vector< double > in( N, 0.0 );
-  std::vector< std::complex< double > > out( nOut, std::complex< double >( 0.0, 0.0 ) );
-  
-  hydroCode::FourierTransforms fft;
-  mathOps::Derivatives ops;
+  Scalar1D< double > realTruth( N );
+  Scalar1D< double > in( N );
+  Scalar1D< std::complex< double > > out( nOut );
+  Scalar1D< std::complex< double > > outDeriv( nOut );
   
   for( int i = 0; i < N; i++ )
   {
-    realTruth[ i ] = -2.0 * pi * std::sin( i * ( 2.0 * pi / N ) );
-    in[ i ] = std::cos( i * ( 2.0 * pi / N ) );
+    realTruth( i ) = -2.0 * pi * std::sin( i * ( 2.0 * pi / N ) );
+    in( i ) = std::cos( i * ( 2.0 * pi / N ) );
   }
   
-  fft.fft_r2c( in, out );
+  fft::fft_r2c_1d( in, out );
   
-  ops.deriv( out );
+  mathOps::calcDeriv( out, outDeriv );
   
-  fft.fft_c2r( out, in );
+  fft::fft_c2r_1d( outDeriv, in );
   
   double mse = 0.0;
   for( int i = 0; i < N; i++ )
   {
-    mse += std::pow( realTruth[ i ] - in[ i ] / 16.0, 2.0 );
+    mse += std::pow( realTruth( i ) - in( i ) / 16.0, 2.0 );
   }
   mse /= N;
   
-  std::cout << "testDeriv                : sigma = " << std::sqrt( mse ) << std::endl;
-}
-
-void TestSuite::testDeriv2()
-{
-  int N = 16;
-  int nOut = std::floor( N / 2 + 1 );
-  
-  std::vector< double > realTruth( N, 0.0 );
-  std::vector< double > in( N, 0.0 );
-  std::vector< std::complex< double > > out( nOut, std::complex< double >( 0.0, 0.0 ) );
-  
-  hydroCode::FourierTransforms fft;
-  mathOps::Derivatives ops;
-  
-  for( int i = 0; i < N; i++ )
-  {
-    realTruth[ i ] = -4.0 * pi * pi * std::cos( i * ( 2.0 * pi / N ) );
-    in[ i ] = std::cos( i * ( 2.0 * pi / N ) );
-  }
-  
-  fft.fft_r2c( in, out );
-  
-  ops.deriv2( out );
-  
-  fft.fft_c2r( out, in );
-  
-  double mse = 0.0;
-  for( int i = 0; i < N; i++ )
-  {
-    mse += std::pow( realTruth[ i ] - in[ i ] / 16.0, 2.0 );
-  }
-  mse /= N;
-  
-  std::cout << "testDeriv2               : sigma = " << std::sqrt( mse ) << std::endl;
+  std::cout << "testDeriv1D              : sigma = " << std::sqrt( mse ) << std::endl;
 }
 
 void TestSuite::testDeriv2D()
@@ -287,52 +204,47 @@ void TestSuite::testDeriv2D()
   
   int nOutY = std::floor( Ny / 2 + 1 );
   
-  hydroCode::FourierTransforms fft;
-  mathOps::Derivatives ops;
-  
-  std::vector< std::vector< double > > f_phys( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< double > > df_phys( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< double > > dfx_truth( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< double > > dfy_truth( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< std::complex< double > > >
-    f_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  std::vector< std::vector< std::complex< double > > >
-    df_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
+  Scalar2D< double > f_phys( Nx, Ny );
+  Scalar2D< double > df_phys( Nx, Ny );
+  Scalar2D< double > dfx_truth( Nx, Ny );
+  Scalar2D< double > dfy_truth( Nx, Ny );
+  Scalar2D< std::complex< double > > f_spec( Nx, nOutY );
+  Scalar2D< std::complex< double > > df_spec( Nx, nOutY );
   
   for( int i = 0; i < Nx; i++ )
   {
     for( int j = 0; j < Ny; j++ )
     {
-      f_phys[ i ][ j ] = std::cos( i * ( 2 * pi / Nx ) ) * std::cos( j * ( 2.0 * pi / Ny ) );
-      dfx_truth[ i ][ j ] = -( 2.0 * pi / Lx ) * std::sin( i * ( 2 * pi / Nx ) ) * std::cos( j * ( 2.0 * pi / Ny ) );
-      dfy_truth[ i ][ j ] = -( 2.0 * pi / Ly ) * std::cos( i * ( 2 * pi / Nx ) ) * std::sin( j * ( 2.0 * pi / Ny ) );
+      f_phys( i, j ) = std::cos( i * ( 2 * pi / Nx ) ) * std::cos( j * ( 2.0 * pi / Ny ) );
+      dfx_truth( i, j ) = -( 2.0 * pi / Lx ) * std::sin( i * ( 2 * pi / Nx ) ) * std::cos( j * ( 2.0 * pi / Ny ) );
+      dfy_truth( i, j ) = -( 2.0 * pi / Ly ) * std::cos( i * ( 2 * pi / Nx ) ) * std::sin( j * ( 2.0 * pi / Ny ) );
     }
   }
   
-  fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, f_phys, f_spec );
-  ops.calcDerivX( f_spec, df_spec, Nx, Ny, Lx );
-  fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, df_spec, df_phys );
+  fft::fft_r2c_2d( f_phys, f_spec );
+  mathOps::calcDerivX( f_spec, df_spec, Nx, Ny, Lx );
+  fft::fft_c2r_2d( df_spec, df_phys );
   
   double mseX = 0.0;
   for( int i = 0; i < Nx; i++ )
   {
     for( int j = 0; j < Ny; j++ )
     {
-      mseX += std::pow( df_phys[ i ][ j ] / ( Nx * Ny ) - dfx_truth[ i ][ j ], 2.0 );
+      mseX += std::pow( df_phys( i, j ) / ( Nx * Ny ) - dfx_truth( i, j ), 2.0 );
     }
   }
   mseX /= ( Nx * Ny );
   
-  fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, f_phys, f_spec );
-  ops.calcDerivY( f_spec, df_spec, Nx, Ny, Ly );
-  fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, df_spec, df_phys );
+  fft::fft_r2c_2d( f_phys, f_spec );
+  mathOps::calcDerivY( f_spec, df_spec, Nx, Ny, Ly );
+  fft::fft_c2r_2d( df_spec, df_phys );
   
   double mseY = 0.0;
   for( int i = 0; i < Nx; i++ )
   {
     for( int j = 0; j < Ny; j++ )
     {
-      mseY += std::pow( df_phys[ i ][ j ] / ( Nx * Ny ) - dfy_truth[ i ][ j ], 2.0 );
+      mseY += std::pow( df_phys( i, j ) / ( Nx * Ny ) - dfy_truth( i, j ), 2.0 );
     }
   }
   mseY /= ( Nx * Ny );
@@ -351,9 +263,9 @@ void TestSuite::testWriteIO()
   size_t Nx = 3;
   size_t Ny = 3;
   size_t Nsteps = 2;
-  io::ioNetCDF testIO( "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/test_io.nc", Nx, Ny, 'w' );
+  io::ioNetCDF testIO( "/Users/ryanmoll/Documents/dev/projects/HydroCode/tests/test_io.nc", Nx, Ny, 'w' );
   
-  std::vector< std::vector< double > > testDataWrite( Nx, std::vector< double >( Ny, 0.0 ) );
+  Scalar2D< double > testDataWrite( Nx, Ny );
   
   for( int ntime = 0; ntime < Nsteps; ntime++ )
   {
@@ -361,7 +273,7 @@ void TestSuite::testWriteIO()
     {
       for( int j = 0; j < Ny; j++ )
       {
-        testDataWrite[ i ][ j ] = 1.0 * ( Ny * i + j + 1.0 );
+        testDataWrite( i, j ) = 1.0 * ( Ny * i + j + 1.0 );
       }
     }
     
@@ -376,10 +288,10 @@ void TestSuite::testReadIO()
   size_t Nx = 3;
   size_t Ny = 3;
   size_t Nsteps = 2;
-  io::ioNetCDF testIO( "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/test_io.nc", Nx, Ny, 'r' );
+  io::ioNetCDF testIO( "/Users/ryanmoll/Documents/dev/projects/HydroCode/tests/test_io.nc", Nx, Ny, 'r' );
   
-  std::vector< std::vector< double > > testDataRead_T( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< double > > testDataRead_u( Nx, std::vector< double >( Ny, 0.0 ) );
+  Scalar2D< double > testDataRead_T( Nx, Ny );
+  Scalar2D< double > testDataRead_u( Nx, Ny );
   
   for( int ntime = 0; ntime < Nsteps; ntime++ )
   {
@@ -390,11 +302,11 @@ void TestSuite::testReadIO()
     {
       for( int j = 0; j < Ny; j++ )
       {
-        if( testDataRead_T[ i ][ j ] != 1.0 * ( Ny * i + j + 1.0 ) )
+        if( testDataRead_T( i, j ) != 1.0 * ( Ny * i + j + 1.0 ) )
         {
           pass = false;
         }
-        if( testDataRead_u[ i ][ j ] != 1.0 * ( Ny * i + j + 1.0 ) )
+        if( testDataRead_u( i, j ) != 1.0 * ( Ny * i + j + 1.0 ) )
         {
           pass = false;
         }
@@ -438,13 +350,10 @@ void TestSuite::simpleAdvDiff( std::string paramFile )
   double advFac = 2.0 * pi * deltaT * c / Lx;
   double diffFac = 4.0 * pi * pi * deltaT * nu / ( Lx * Lx );
   
-  std::vector< std::vector< double > > T0_phys( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< double > > T1_phys( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< double > > truth_phys( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< std::complex< double > > >
-    T_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  
-  hydroCode::FourierTransforms fft;
+  Scalar2D< double > T0_phys( Nx, Ny );
+  Scalar2D< double > T1_phys( Nx, Ny );
+  Scalar2D< double > truth_phys( Nx, Ny );
+  Scalar2D< std::complex< double > > T_spec( Nx, nOutY );
   
   io::ioNetCDF testWriter( testWriterFile, Nx, Ny, 'w' );
   io::ioNetCDF truthWriter( truthWriterFile, Nx, Ny, 'w' );
@@ -453,8 +362,8 @@ void TestSuite::simpleAdvDiff( std::string paramFile )
   {
     for( int j = 0; j < Ny; j++ )
     {
-      T0_phys[ i ][ j ] = std::cos( i * ( 2 * pi / Nx ) );
-      truth_phys[ i ][ j ] = std::cos( i * ( 2 * pi / Nx ) );
+      T0_phys( i, j ) = std::cos( i * ( 2 * pi / Nx ) );
+      truth_phys( i, j ) = std::cos( i * ( 2 * pi / Nx ) );
     }
   }
   testWriter.write_T( 0, T0_phys );
@@ -463,13 +372,13 @@ void TestSuite::simpleAdvDiff( std::string paramFile )
   // Starting time step loop
   for( size_t t = 0; t < nSteps; t++ )
   {
-    fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, T0_phys, T_spec );
+    fft::fft_r2c_2d( T0_phys, T_spec );
     
     for( int i = 0 ; i < nOutX ; i++ )
     {
       for( int j = 0 ; j < nOutY ; j++ )
       {
-        T_spec[ i ][ j ] /= ( 1.0 + advFac * i * std::complex< double >( 0.0, 1.0 )
+        T_spec( i, j ) /= ( 1.0 + advFac * i * std::complex< double >( 0.0, 1.0 )
                             + diffFac * i * i );
       }
     }
@@ -478,18 +387,18 @@ void TestSuite::simpleAdvDiff( std::string paramFile )
     {
       for( int j = 0 ; j < nOutY ; j++ )
       {
-        T_spec[ i ][ j ] /= ( 1.0 - advFac * ( Nx - i ) * std::complex< double >( 0.0, 1.0 )
+        T_spec( i, j ) /= ( 1.0 - advFac * ( Nx - i ) * std::complex< double >( 0.0, 1.0 )
                             + diffFac * ( Nx - i ) * ( Nx - i ) );
       }
     }
     
-    fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, T_spec, T1_phys );
+    fft::fft_c2r_2d( T_spec, T1_phys );
     
-    for( int i = 0; i < Nx; i++ )
+    for( int i = 0; i < Nx; ++i )
     {
-      for( int j = 0; j < Ny; j++ )
+      for( int j = 0; j < Ny; ++j )
       {
-        T0_phys[ i ][ j ] = T1_phys[ i ][ j ] / ( Nx * Ny );
+        T0_phys( i, j ) = T1_phys( i, j ) / ( Nx * Ny );
       }
     }
     
@@ -497,7 +406,7 @@ void TestSuite::simpleAdvDiff( std::string paramFile )
     {
       for( int j = 0; j < Ny; j++ )
       {
-        truth_phys[ i ][ j ] = std::cos( i * 2.0 * pi / Nx - ( t + 1 ) * advFac );
+        truth_phys( i, j ) = std::cos( i * 2.0 * pi / Nx - ( t + 1 ) * advFac );
       }
     }
     
@@ -539,18 +448,13 @@ void TestSuite::simpleAdvDiffNL( std::string paramFile )
   double advFac = 2.0 * pi / Lx;
   double diffFac = 4.0 * pi * pi * deltaT * nu / ( Lx * Lx );
   
-  std::vector< std::vector< double > > T0_phys( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< double > > dT0_phys( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< double > > NL0_phys( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< double > > T1_phys( Nx, std::vector< double >( Ny, 0.0 ) );
-  std::vector< std::vector< std::complex< double > > >
-    T_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  std::vector< std::vector< std::complex< double > > >
-    dT_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  std::vector< std::vector< std::complex< double > > >
-    NL_spec( Nx, std::vector< std::complex< double > >( nOutY, std::complex< double >( 0.0, 0.0 ) ) );
-  
-  hydroCode::FourierTransforms fft;
+  Scalar2D< double > T0_phys( Nx, Ny );
+  Scalar2D< double > dT0_phys( Nx, Ny );
+  Scalar2D< double > NL0_phys( Nx, Ny );
+  Scalar2D< double > T1_phys( Nx, Ny );
+  Scalar2D< std::complex< double > > T_spec( Nx, nOutY );
+  Scalar2D< std::complex< double > > dT_spec( Nx, nOutY );
+  Scalar2D< std::complex< double > > NL_spec( Nx, nOutY );
   
   io::ioNetCDF testWriter( testWriterFile, Nx, Ny, 'w' );
   
@@ -558,7 +462,7 @@ void TestSuite::simpleAdvDiffNL( std::string paramFile )
   {
     for( int j = 0; j < Ny; j++ )
     {
-      T0_phys[ i ][ j ] = std::cos( i * ( 2 * pi / Nx ) );
+      T0_phys( i, j ) = std::cos( i * ( 2 * pi / Nx ) );
     }
   }
   testWriter.write_T( 0, T0_phys );
@@ -566,13 +470,13 @@ void TestSuite::simpleAdvDiffNL( std::string paramFile )
   // Starting time step loop
   for( size_t t = 0; t < nSteps; t++ )
   {
-    fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, T0_phys, T_spec );
+    fft::fft_r2c_2d( T0_phys, T_spec );
     
     for( int i = 0 ; i < nOutX ; i++ )
     {
       for( int j = 0 ; j < nOutY ; j++ )
       {
-        dT_spec[ i ][ j ] = advFac * i * std::complex< double >( 0.0, 1.0 ) * T_spec[ i ][ j ];
+        dT_spec( i, j ) = advFac * i * std::complex< double >( 0.0, 1.0 ) * T_spec( i, j );
       }
     }
     
@@ -580,17 +484,17 @@ void TestSuite::simpleAdvDiffNL( std::string paramFile )
     {
       for( int j = 0 ; j < nOutY ; j++ )
       {
-        dT_spec[ i ][ j ] = -advFac * ( Nx - i ) * std::complex< double >( 0.0, 1.0 ) * T_spec[ i ][ j ];
+        dT_spec( i, j ) = -advFac * ( Nx - i ) * std::complex< double >( 0.0, 1.0 ) * T_spec( i, j );
       }
     }
     
-    fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, dT_spec, dT0_phys );
+    fft::fft_c2r_2d( dT_spec, dT0_phys );
     
     for( int i = 0; i < Nx; i++ )
     {
       for( int j = 0; j < Ny; j++ )
       {
-        dT0_phys[ i ][ j ] /= ( Nx * Ny );
+        dT0_phys( i, j ) /= ( Nx * Ny );
       }
     }
     
@@ -598,17 +502,17 @@ void TestSuite::simpleAdvDiffNL( std::string paramFile )
     {
       for( int j = 0; j < Ny; j++ )
       {
-        NL0_phys[ i ][ j ] = T0_phys[ i ][ j ] * dT0_phys[ i ][ j ];
+        NL0_phys( i, j ) = T0_phys( i, j ) * dT0_phys( i, j );
       }
     }
     
-    fft.fft_r2c_2d( ( int ) Nx, ( int ) Ny, NL0_phys, NL_spec );
+    fft::fft_r2c_2d( NL0_phys, NL_spec );
     
     for( int i = 0 ; i < nOutX ; i++ )
     {
       for( int j = 0 ; j < nOutY ; j++ )
       {
-        T_spec[ i ][ j ] = ( T_spec[ i ][ j ] - deltaT * NL_spec[ i ][ j ] )
+        T_spec( i, j ) = ( T_spec( i, j ) - deltaT * NL_spec( i, j ) )
                            / ( 1.0 + diffFac * i * i );
       }
     }
@@ -617,18 +521,18 @@ void TestSuite::simpleAdvDiffNL( std::string paramFile )
     {
       for( int j = 0 ; j < nOutY ; j++ )
       {
-        T_spec[ i ][ j ] = ( T_spec[ i ][ j ] - deltaT * NL_spec[ i ][ j ] )
+        T_spec( i, j ) = ( T_spec( i, j ) - deltaT * NL_spec( i, j ) )
                            / ( 1.0 + diffFac * ( Nx - i ) * ( Nx - i ) );
       }
     }
     
-    fft.fft_c2r_2d( ( int ) Nx, ( int ) Ny, T_spec, T1_phys );
+    fft::fft_c2r_2d( T_spec, T1_phys );
     
     for( int i = 0; i < Nx; i++ )
     {
       for( int j = 0; j < Ny; j++ )
       {
-        T0_phys[ i ][ j ] = T1_phys[ i ][ j ] / ( Nx * Ny );
+        T0_phys( i, j ) = T1_phys( i, j ) / ( Nx * Ny );
       }
     }
     

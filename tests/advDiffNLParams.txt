@@ -5,4 +5,4 @@ Ny       = 64
 Lx       = 1.0
 Ly       = 1.0
 nu       = 0.01
-dataFile = /Users/rmoll/Documents/dev/projects/HydroCode/Testing/test_AdvDiffNL.nc
+dataFile = /Users/ryanmoll/Documents/dev/projects/HydroCode/tests/test_AdvDiffNL.nc

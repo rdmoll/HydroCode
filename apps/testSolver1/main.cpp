@@ -8,12 +8,12 @@
 #include <iostream>
 #include <complex>
 #include <netcdf>
-#include "TestSuite.h"
-#include "FourierTransforms.h"
-#include "ioNetCDF.h"
-#include "TestSolver.h"
-#include "HighOrderSolver.h"
-#include "variables.h"
+#include "../../include/TestSuite.h"
+#include "../../include/Transforms.h"
+#include "../../include/ioNetCDF.h"
+//#include "../../include/TestSolver.h"
+//#include "../../include/HighOrderSolver.h"
+//#include "../../include/variables.h"
 
 int main( int argc, const char * argv[] )
 {
@@ -21,28 +21,26 @@ int main( int argc, const char * argv[] )
   std::cout << "RUNNING UNIT TESTS" << std::endl;
   diagnostics::TestSuite unitTests;
   unitTests.testReadParams();
-  unitTests.testFourierTransforms1();
-  unitTests.testFourierTransforms2();
-  unitTests.testFourierTransforms_2D();
-  unitTests.testDeriv();
-  unitTests.testDeriv2();
-  unitTests.testReadWriteIO();
+  unitTests.testFourierTransform1D();
+  unitTests.testFourierTransform2D();
+  unitTests.testDeriv1D();
   unitTests.testDeriv2D();
+  unitTests.testReadWriteIO();
   
-  std::cout << std::endl;
+  //std::cout << std::endl;
   
-  unitTests.simpleAdvDiff( "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/advDiffParams.txt" );
+  //unitTests.simpleAdvDiff( "/Users/ryanmoll/Documents/dev/projects/HydroCode/tests/advDiffParams.txt" );
   
-  std::cout << std::endl;
+  //std::cout << std::endl;
   
-  unitTests.simpleAdvDiffNL( "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/advDiffNLParams.txt" );
+  //unitTests.simpleAdvDiffNL( "/Users/ryanmoll/Documents/dev/projects/HydroCode/tests/advDiffNLParams.txt" );
   
-  std::cout << std::endl;
+  //std::cout << std::endl;
   
-  std::string testSolverParamFile = "/Users/rmoll/Documents/dev/projects/HydroCode/Testing/testSolverParams.txt";
+  //std::string testSolverParamFile = "/Users/ryanmoll/Documents/dev/projects/HydroCode/tests/testSolverParams.txt";
   //solvers::TestSolver simpleAdvDiff( testSolverParamFile );
-  solvers::HighOrderSolver simpleAdvDiff( testSolverParamFile );
-  simpleAdvDiff.runSimulation();
+  //solvers::HighOrderSolver simpleAdvDiff( testSolverParamFile );
+  //simpleAdvDiff.runSimulation();
   
   return 0;
 }

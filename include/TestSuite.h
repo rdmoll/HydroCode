@@ -10,9 +10,11 @@
 
 #include <iostream>
 #include <chrono>
-#include "FourierTransforms.h"
+#include "Scalar1D.h"
+#include "Scalar2D.h"
+#include "Transforms.h"
 #include "ReadParams.h"
-#include "Derivatives.h"
+#include "MathOps.h"
 #include "ioNetCDF.h"
 
 namespace diagnostics
@@ -25,11 +27,9 @@ public:
   ~TestSuite();
   
   void testReadParams();
-  void testFourierTransforms1();
-  void testFourierTransforms2();
-  void testFourierTransforms_2D();
-  void testDeriv();
-  void testDeriv2();
+  void testFourierTransform1D();
+  void testFourierTransform2D();
+  void testDeriv1D();
   void testDeriv2D();
   void testReadWriteIO();
   void testWriteIO();

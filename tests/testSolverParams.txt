@@ -7,4 +7,4 @@ Ly       = 1.0
 nu       = 0.01
 kappaT   = 0.01
 kappaC   = 0.01
-dataFile = /Users/rmoll/Documents/dev/projects/HydroCode/Testing/testSolver.nc
+dataFile = /Users/ryanmoll/Documents/dev/projects/HydroCode/tests/testSolver.nc

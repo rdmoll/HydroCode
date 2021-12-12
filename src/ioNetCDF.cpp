@@ -5,7 +5,7 @@
 //  Created by Ryan Moll on 12/26/20.
 //
 
-#include "ioNetCDF.h"
+#include "../include/ioNetCDF.h"
 
 namespace io
 {
@@ -56,132 +56,60 @@ ioNetCDF::~ioNetCDF()
   _dataFile.close();
 }
 
-void ioNetCDF::read_T( size_t readIndex, std::vector< std::vector< double > >& dataVector )
+void ioNetCDF::read_T( size_t readIndex, Scalar2D< double >& dataArray )
 {
   double dataIn[ _xDimSize ][ _yDimSize ];
   _startp[ 0 ] = readIndex;
   
-  _data_T.getVar( _startp, _countp, dataIn );
-  
-  for( size_t i = 0; i < _xDimSize; i++ )
-  {
-    for( size_t j = 0; j < _yDimSize; j++ )
-    {
-      dataVector[ i ][ j ] = dataIn[ i ][ j ];
-    }
-  }
+  _data_T.getVar( _startp, _countp, dataArray.get() );
 }
 
-void ioNetCDF::read_C( size_t readIndex, std::vector< std::vector< double > >& dataVector )
+void ioNetCDF::read_C( size_t readIndex, Scalar2D< double >& dataArray )
 {
   double dataIn[ _xDimSize ][ _yDimSize ];
   _startp[ 0 ] = readIndex;
   
-  _data_C.getVar( _startp, _countp, dataIn );
-  
-  for( size_t i = 0; i < _xDimSize; i++ )
-  {
-    for( size_t j = 0; j < _yDimSize; j++ )
-    {
-      dataVector[ i ][ j ] = dataIn[ i ][ j ];
-    }
-  }
+  _data_C.getVar( _startp, _countp, dataArray.get() );
 }
 
-void ioNetCDF::read_u( size_t readIndex, std::vector< std::vector< double > >& dataVector )
+void ioNetCDF::read_u( size_t readIndex, Scalar2D< double >& dataArray )
 {
   double dataIn[ _xDimSize ][ _yDimSize ];
   _startp[ 0 ] = readIndex;
   
-  _data_u.getVar( _startp, _countp, dataIn );
-  
-  for( size_t i = 0; i < _xDimSize; i++ )
-  {
-    for( size_t j = 0; j < _yDimSize; j++ )
-    {
-      dataVector[ i ][ j ] = dataIn[ i ][ j ];
-    }
-  }
+  _data_u.getVar( _startp, _countp, dataArray.get() );
 }
 
-void ioNetCDF::read_v( size_t readIndex, std::vector< std::vector< double > >& dataVector )
+void ioNetCDF::read_v( size_t readIndex, Scalar2D< double >& dataArray )
 {
   double dataIn[ _xDimSize ][ _yDimSize ];
   _startp[ 0 ] = readIndex;
   
-  _data_v.getVar( _startp, _countp, dataIn );
-  
-  for( size_t i = 0; i < _xDimSize; i++ )
-  {
-    for( size_t j = 0; j < _yDimSize; j++ )
-    {
-      dataVector[ i ][ j ] = dataIn[ i ][ j ];
-    }
-  }
+  _data_v.getVar( _startp, _countp, dataArray.get() );
 }
 
-void ioNetCDF::write_T( size_t writeIndex, std::vector< std::vector< double > >& dataVector )
+void ioNetCDF::write_T( size_t writeIndex, Scalar2D< double >& dataArray )
 {
-  double dataArray[ _xDimSize ][ _yDimSize ];
-  
-  for( size_t i = 0; i < _xDimSize; i++ )
-  {
-    for( size_t j = 0; j < _yDimSize; j++ )
-    {
-      dataArray[ i ][ j ] = dataVector[ i ][ j ];
-    }
-  }
-  
   _startp[ 0 ] = writeIndex;
-  _data_T.putVar( _startp, _countp, dataArray );
+  _data_T.putVar( _startp, _countp, dataArray.get() );
 }
 
-void ioNetCDF::write_C( size_t writeIndex, std::vector< std::vector< double > >& dataVector )
+void ioNetCDF::write_C( size_t writeIndex, Scalar2D< double >& dataArray )
 {
-  double dataArray[ _xDimSize ][ _yDimSize ];
-  
-  for( size_t i = 0; i < _xDimSize; i++ )
-  {
-    for( size_t j = 0; j < _yDimSize; j++ )
-    {
-      dataArray[ i ][ j ] = dataVector[ i ][ j ];
-    }
-  }
-  
   _startp[ 0 ] = writeIndex;
-  _data_C.putVar( _startp, _countp, dataArray );
+  _data_C.putVar( _startp, _countp, dataArray.get() );
 }
 
-void ioNetCDF::write_u( size_t writeIndex, std::vector< std::vector< double > >& dataVector )
+void ioNetCDF::write_u( size_t writeIndex, Scalar2D< double >& dataArray )
 {
-  double dataArray[ _xDimSize ][ _yDimSize ];
-  
-  for( size_t i = 0; i < _xDimSize; i++ )
-  {
-    for( size_t j = 0; j < _yDimSize; j++ )
-    {
-      dataArray[ i ][ j ] = dataVector[ i ][ j ];
-    }
-  }
-  
   _startp[ 0 ] = writeIndex;
-  _data_u.putVar( _startp, _countp, dataArray );
+  _data_u.putVar( _startp, _countp, dataArray.get() );
 }
 
-void ioNetCDF::write_v( size_t writeIndex, std::vector< std::vector< double > >& dataVector )
+void ioNetCDF::write_v( size_t writeIndex, Scalar2D< double >& dataArray )
 {
-  double dataArray[ _xDimSize ][ _yDimSize ];
-  
-  for( size_t i = 0; i < _xDimSize; i++ )
-  {
-    for( size_t j = 0; j < _yDimSize; j++ )
-    {
-      dataArray[ i ][ j ] = dataVector[ i ][ j ];
-    }
-  }
-  
   _startp[ 0 ] = writeIndex;
-  _data_v.putVar( _startp, _countp, dataArray );
+  _data_v.putVar( _startp, _countp, dataArray.get() );
 }
 
 }
