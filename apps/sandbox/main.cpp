@@ -7,6 +7,7 @@
 
 int main( int argc, const char * argv[] )
 {
+  /*
   std::size_t N = 16;
   std::size_t nOut = std::floor( N / 2 + 1 );
   
@@ -38,6 +39,26 @@ int main( int argc, const char * argv[] )
   for( std::size_t i = 0; i < N; i++ )
   {
     std::cout << df_phys( i ) << std::endl;
+  }
+   */
+  
+  Scalar1D< double > test1( 3 );
+  Scalar1D< double > test2( 3 );
+  Scalar1D< double > test3( 3 );
+  
+  test1( 0 ) = 1.0;
+  test1( 0 ) = 2.0;
+  test1( 0 ) = 3.0;
+  
+  test2( 0 ) = 3.0;
+  test2( 0 ) = 4.0;
+  test2( 0 ) = 5.0;
+  
+  test3 = test1 * test2;
+  
+  for( std::size_t i = 0; i < 3; ++i )
+  {
+    std::cout << test3( i ) << std::endl;
   }
   
   return 0;
