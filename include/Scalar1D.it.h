@@ -55,7 +55,7 @@ T& Scalar1D< T >::operator()( const std::size_t index )
 template< class T >
 Scalar1D< T >& operator*( Scalar1D< T >& arr1, Scalar1D< T >& arr2 )
 {
-  Scalar1D< T > arrOut( arr1.size() );
+  static Scalar1D< T > arrOut( arr1.size() );
   
   for( std::size_t i = 0; i < arr1.size(); ++i )
   {

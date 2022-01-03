@@ -17,6 +17,7 @@ public:
   // Operators
   const T& operator()( const std::size_t index ) const;
   T& operator()( const std::size_t index );
+  Scalar1D< T >& operator=( const Scalar1D< T >& obj ){ return *this; };
   
 protected:
   std::unique_ptr< T > _data;
