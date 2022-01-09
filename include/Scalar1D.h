@@ -12,12 +12,12 @@ public:
   void set( std::size_t index, T value );
   void set( T* arrayPtr );
   T* get() const;
-  std::size_t size();
+  const std::size_t size();
   
   // Operators
   const T& operator()( const std::size_t index ) const;
   T& operator()( const std::size_t index );
-  Scalar1D< T >& operator=( const Scalar1D< T >& obj ){ return *this; };
+  Scalar1D< T >& operator=( Scalar1D< T >& arr );
   
 protected:
   std::unique_ptr< T > _data;

@@ -7,7 +7,6 @@
 
 int main( int argc, const char * argv[] )
 {
-  /*
   std::size_t N = 16;
   std::size_t nOut = std::floor( N / 2 + 1 );
   
@@ -27,39 +26,46 @@ int main( int argc, const char * argv[] )
   
   fft::fft_r2c_1d( in, out );
   
+  std::cout << std::endl;
   for( std::size_t i = 0; i < nOut; i++ )
   {
     std::cout << out( i ) << std::endl;
   }
   
-  mathOps::calcDeriv( out, df_spec, 1.0 * N );
+  mathOps::calcDeriv( out, df_spec );
   
   fft::fft_c2r_1d( df_spec, df_phys );
   
+  std::cout << std::endl;
   for( std::size_t i = 0; i < N; i++ )
   {
     std::cout << df_phys( i ) << std::endl;
   }
-   */
   
   Scalar1D< double > test1( 3 );
   Scalar1D< double > test2( 3 );
   Scalar1D< double > test3( 3 );
   
   test1( 0 ) = 1.0;
-  test1( 0 ) = 2.0;
-  test1( 0 ) = 3.0;
+  test1( 1 ) = 2.0;
+  test1( 2 ) = 3.0;
   
   test2( 0 ) = 3.0;
-  test2( 0 ) = 4.0;
-  test2( 0 ) = 5.0;
+  test2( 1 ) = 4.0;
+  test2( 2 ) = 5.0;
   
   test3 = test1 * test2;
+  
+  std::cout << std::endl;
   
   for( std::size_t i = 0; i < 3; ++i )
   {
     std::cout << test3( i ) << std::endl;
   }
+  
+  std::cout << std::endl;
+  
+  std::cout << test3.size() << std::endl;
   
   return 0;
 }

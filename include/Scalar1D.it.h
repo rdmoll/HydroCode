@@ -35,7 +35,7 @@ T* Scalar1D< T >::get() const
 }
 
 template< class T >
-std::size_t Scalar1D< T >::size()
+const std::size_t Scalar1D< T >::size()
 {
   return _arraySize;
 }
@@ -50,6 +50,19 @@ template< class T >
 T& Scalar1D< T >::operator()( const std::size_t index )
 {
   return ( _data.get() )[ index ];
+}
+
+template< class T >
+Scalar1D< T >& Scalar1D< T >::operator=( Scalar1D< T >& arr )
+{
+  if( arr.size() == _arraySize )
+  {
+    for( std::size_t i = 0; i < _arraySize; ++i )
+    {
+      set( i, arr( i ) );
+    }
+  }
+  return *this;
 }
 
 template< class T >
