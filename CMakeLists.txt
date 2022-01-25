@@ -1,17 +1,21 @@
 cmake_minimum_required(VERSION 2.8.9)
 project(HydroCode)
 
-#message( STATUS ${CMAKE_CURRENT_SOURCE_DIR} )
+message( STATUS ${CMAKE_CURRENT_SOURCE_DIR} )
 
 #cmake scripts
-#set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake )
+set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake )
 
 #Include FFTW libraries
 set( FFTW_DIR /usr/local )
 set( NETCDF_DIR /opt/homebrew )
 
-set( FFTW_LIB_NAME "libfftw3.a" )
-find_library( FFTW_LIB NAMES ${FFTW_LIB_NAME} PATHS ${FFTW_DIR}/lib )
+#set( FFTW_LIB_NAME "libfftw3.a" )
+#find_library( FFTW_LIB NAMES ${FFTW_LIB_NAME} PATHS ${FFTW_DIR}/lib )
+
+find_package( FFTW )
+
+find_package( NETCDF )
 
 set( NETCDF_LIB_NAME1 "libnetcdf.a" )
 set( NETCDF_LIB_NAME2 "libnetcdf-cxx4.a" )
@@ -26,10 +30,10 @@ list( APPEND includePath "${CMAKE_CURRENT_SOURCE_DIR}/include"
                          "${NETCDF_DIR}/include" )
 
 #Use file(GLOB...) for wildcard additions
-file( GLOB SOURCES "apps/*.cpp" "src/*.cpp" )
+file( GLOB SOURCES "apps/sandbox/main.cpp" "src/*.cpp" )
 
 add_executable( hydroTest ${SOURCES} )
-target_link_libraries( hydroTest ${FFTW_LIB} )
+target_link_libraries( hydroTest ${FFTW_DOUBLE_LIB} )
 target_link_libraries( hydroTest ${NETCDF_LIB2} )
 target_link_libraries( hydroTest ${NETCDF_LIB1} )
 target_link_libraries( hydroTest ${NETCDF_LIB3} )
