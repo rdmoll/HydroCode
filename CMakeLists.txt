@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.9)
 project(HydroCode)
 
-#cmake scripts
+#CMake scripts
 set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake )
 
 #Find FFTW and NetCDF packages
