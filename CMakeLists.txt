@@ -16,8 +16,11 @@ list( APPEND includePath "${CMAKE_CURRENT_SOURCE_DIR}/include"
 #Use file(GLOB...) for wildcard additions
 file( GLOB SOURCES "apps/sandbox/main.cpp" "src/*.cpp" )
 
+#Use file(GLOB...) for wildcard additions
+file( GLOB HEADERS "include/*.h" )
+
 #Link libraries
-add_executable( hydroTest ${SOURCES} )
+add_executable( hydroTest ${SOURCES} ${HEADERS} )
 target_link_libraries( hydroTest ${FFTW_DOUBLE_LIB} )
 target_link_libraries( hydroTest ${NETCDF_DOUBLE_LIB} )
 target_link_libraries( hydroTest ${NETCDF_CPP_LIB} )
