@@ -113,19 +113,19 @@ void TestSuite::testFourierTransform2D()
 {
   size_t Nx = 16;
   size_t Ny = 16;
-  //int nOutX = std::floor( Nx / 2 + 1 );
-  int nOutY = std::floor( Ny / 2 + 1 );
+  int nOutX = std::floor( Nx / 2 + 1 );
+  //int nOutY = std::floor( Ny / 2 + 1 );
   
-  Scalar2D< double > realTruth( Nx, Ny );
-  Scalar2D< double > realTest( Nx, Ny );
-  Scalar2D< std::complex< double > > compTruth( Nx, nOutY );
-  Scalar2D< std::complex< double > > compTest( Nx, nOutY );
+  Scalar2D< double > realTruth( Ny, Nx );
+  Scalar2D< double > realTest( Ny, Nx );
+  Scalar2D< std::complex< double > > compTruth( Ny, nOutX );
+  Scalar2D< std::complex< double > > compTest( Ny, nOutX );
   
-  for( int i = 0; i < Nx; i++ )
+  for( int i = 0; i < Ny; i++ )
   {
-    for( int j = 0; j < Ny; j++ )
+    for( int j = 0; j < Nx; j++ )
     {
-      realTruth( i, j ) = std::cos( i * ( 2 * pi / Nx ) ) * std::cos( j * ( 2 * pi / Ny ) );
+      realTruth( i, j ) = std::cos( i * ( 2 * pi / Ny ) ) * std::cos( j * ( 2 * pi / Nx ) );
     }
   }
   
@@ -135,22 +135,22 @@ void TestSuite::testFourierTransform2D()
   fft::fft_r2c_2d( realTruth, compTest );
   
   double compMSE = 0.0;
-  for( int i = 0 ; i < Nx ; i++ )
+  for( int i = 0 ; i < Ny ; i++ )
   {
-    for( int j = 0 ; j < nOutY ; j++ )
+    for( int j = 0 ; j < nOutX ; j++ )
     {
       compMSE = compMSE + std::pow( compTruth( i, j ).real() - compTest( i, j ).real() / 64, 2.0 )
                         + std::pow( compTruth( i, j ).imag() - compTest( i, j ).imag() / 64, 2.0 );
     }
   }
-  compMSE /= 2.0 * Nx * nOutY;
+  compMSE /= 2.0 * Ny * nOutX;
   
   fft::fft_c2r_2d( compTest, realTest );
   
   double realMSE = 0.0;
-  for( int i = 0; i < Nx; i++ )
+  for( int i = 0; i < Ny; i++ )
   {
-    for( int j = 0; j < Ny; j++ )
+    for( int j = 0; j < Nx; j++ )
     {
       realMSE += std::pow( realTruth( i, j ) - realTest( i, j ) / ( Nx * Ny ), 2.0 );
     }
