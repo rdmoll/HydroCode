@@ -5,12 +5,14 @@ template< class T >
 class Scalar2D
 {
 public:
+  Scalar2D(){};
   Scalar2D( std::size_t rowSize, std::size_t colSize );
   ~Scalar2D( );
   
   // Container methods
   void set( std::size_t rowIndex, std::size_t colIndex, T value );
   void set( T* arrayPtr );
+  void setSize( std::size_t rowSize, std::size_t colSize );
   T* get() const;
   std::size_t rows();
   std::size_t cols();

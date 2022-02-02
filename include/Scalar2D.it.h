@@ -34,6 +34,15 @@ void Scalar2D< T >::set( T* arrayPtr )
 }
 
 template< class T >
+void Scalar2D< T >::setSize( std::size_t rowSize, std::size_t colSize )
+{
+  _rowSize = rowSize;
+  _colSize = colSize;
+  
+  _data = std::unique_ptr< T >( new T[ _rowSize * _colSize ] );
+}
+
+template< class T >
 T* Scalar2D< T >::get() const
 {
   return _data.get();

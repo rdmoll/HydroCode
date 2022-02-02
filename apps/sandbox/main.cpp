@@ -3,7 +3,9 @@
 
 #include "../../include/Scalar1D.h"
 #include "../../include/Transforms.h"
-#include "../../include/MathOps.h"
+//#include "../../include/MathOps.h"
+#include "MathOps.h"
+#include "TestSolver.h"
 
 int main( int argc, const char * argv[] )
 {
@@ -66,6 +68,9 @@ int main( int argc, const char * argv[] )
   std::cout << std::endl;
   
   std::cout << test3.size() << std::endl;
+  
+  solvers::TestSolver solver1( "/Users/ryanmoll/Documents/dev/projects/HydroCode/tests/advDiffParams.txt" );
+  solver1.runSimulation();
   
   return 0;
 }
