@@ -24,6 +24,10 @@ public:
   TestSolver( std::string paramFile );
   ~TestSolver();
   
+  void setInitConditions( Scalar2D< double >& T_phys,
+                          Scalar2D< double >& u_phys,
+                          Scalar2D< double >& v_phys );
+  
   void runSimulation();
   
 protected:
