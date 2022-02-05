@@ -7,6 +7,7 @@
 #include "Transforms.h"
 #include "MathOps.h"
 #include "TestSolver.h"
+#include "mpi.h"
 
 int main( int argc, const char * argv[] )
 {
@@ -133,6 +134,14 @@ int main( int argc, const char * argv[] )
             << std::chrono::duration<double, std::milli>(t_end-t_start).count()
             << " ms\n" << std::endl;
   }
+
+  int myRank, p, n;
+  
+  MPI_Init( NULL, NULL );
+  MPI_Comm_size( MPI_COMM_WORLD, &p );
+  MPI_Comm_rank( MPI_COMM_WORLD, &myRank );
+  std::cout << p << " , " << myRank << std::endl;
+  MPI_Finalize();
   
   return 0;
 }
