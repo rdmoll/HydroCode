@@ -1,15 +1,5 @@
-//
-//  Scalar3D.h
-//  HydroCode
-//
-//  Created by Ryan Moll on 2/3/22.
-//
-
 #ifndef Scalar3D_h
 #define Scalar3D_h
-
-#include <iostream>
-#include <memory>
 
 template< class T >
 class Scalar3D
@@ -31,6 +21,7 @@ public:
   // Operators
   const T& operator()( const std::size_t rowIndex, const std::size_t colIndex, const std::size_t sliceIndex ) const;
   T& operator()( const std::size_t rowIndex, const std::size_t colIndex, const std::size_t sliceIndex );
+  Scalar3D< T >& operator=( Scalar3D< T >& arr );
   
 protected:
   std::unique_ptr< T > _data;

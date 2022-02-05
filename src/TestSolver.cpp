@@ -36,9 +36,9 @@ void TestSolver::setInitConditions( Scalar2D< double >& T_phys,
   {
     for( int j = 0; j < Nx; ++j )
     {
-      T_phys( i, j ) = std::cos( i * ( 2.0 * pi / Ny ) ) * std::sin( j * ( 2.0 * pi / Nx ) );
-      u_phys( i, j ) = std::cos( i * ( 2.0 * pi / Ny ) ) * std::cos( j * ( 2.0 * pi / Nx ) );
-      v_phys( i, j ) = 0.0 * std::sin( i * ( 2.0 * pi / Ny ) ) * std::sin( j * ( 4.0 * pi / Nx ) );
+      T_phys( i, j ) = std::cos( i * ( 2.0 * M_PI / Ny ) ) * std::sin( j * ( 2.0 * M_PI / Nx ) );
+      u_phys( i, j ) = std::cos( i * ( 2.0 * M_PI / Ny ) ) * std::cos( j * ( 2.0 * M_PI / Nx ) );
+      v_phys( i, j ) = 0.0 * std::sin( i * ( 2.0 * M_PI / Ny ) ) * std::sin( j * ( 4.0 * M_PI / Nx ) );
     }
   }
 }

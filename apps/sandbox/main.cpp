@@ -1,15 +1,17 @@
 #include <iostream>
 #include <complex>
 
-#include "../../include/Scalar1D.h"
-#include "../../include/Transforms.h"
-//#include "../../include/MathOps.h"
+#include "Scalar1D.h"
+#include "Scalar2D.h"
+#include "Scalar3D.h"
+#include "Transforms.h"
 #include "MathOps.h"
 #include "TestSolver.h"
 
 int main( int argc, const char * argv[] )
 {
-  std::size_t N = 16;
+  /*
+  std::size_t N = 16777216; //16;
   std::size_t nOut = std::floor( N / 2 + 1 );
   
   Scalar1D< double > realTruth( N );
@@ -23,9 +25,28 @@ int main( int argc, const char * argv[] )
     realTruth( i ) = std::cos( i * ( 2 * M_PI / N ) );
     in( i ) = std::cos( i * ( 2 * M_PI / N ) );
     
-    std::cout << in( i ) << std::endl;
+    //std::cout << in( i ) << std::endl;
+  }
+   */
+  
+  std::size_t Nx = 4096;
+  std::size_t Ny = 4096;
+  std::size_t nOutX = std::floor( Nx / 2 + 1 );
+  
+  Scalar2D< double > realTruth( Ny, Nx );
+  Scalar2D< double > in( Ny, Nx );
+  Scalar2D< std::complex< double > > out( Ny, nOutX );
+  
+  for( int i = 0; i < Ny; ++i )
+  {
+    for( int j = 0; j < Nx; ++j )
+    {
+      realTruth( i, j ) = std::cos( i * ( 2.0 * M_PI / Ny ) ) * std::sin( j * ( 2.0 * M_PI / Nx ) );
+      in( i, j ) = std::cos( i * ( 2.0 * M_PI / Ny ) ) * std::cos( j * ( 2.0 * M_PI / Nx ) );
+    }
   }
   
+  /*
   fft::fft_r2c_1d( in, out );
   
   std::cout << std::endl;
@@ -71,6 +92,47 @@ int main( int argc, const char * argv[] )
   
   solvers::TestSolver solver1( "/Users/ryanmoll/Documents/dev/projects/HydroCode/tests/advDiffParams.txt" );
   solver1.runSimulation();
+  
+  std::cout << std::endl;
+  */
+  
+  {
+  // Start timer
+  std::clock_t c_start = std::clock();
+  auto t_start = std::chrono::high_resolution_clock::now();
+  
+  fft::fft_r2c_2d_thread( in, out );
+  
+  // End timer
+  std::clock_t c_end = std::clock();
+  auto t_end = std::chrono::high_resolution_clock::now();
+  
+  // Print completion message and timing information
+  std::cout << std::fixed << std::setprecision(2) << "CPU time used: "
+            << 1000.0 * (c_end - c_start) / CLOCKS_PER_SEC << " ms\n"
+            << "Wall clock time passed: "
+            << std::chrono::duration<double, std::milli>(t_end-t_start).count()
+            << " ms\n" << std::endl;
+  }
+  
+  {
+  // Start timer
+  std::clock_t c_start = std::clock();
+  auto t_start = std::chrono::high_resolution_clock::now();
+  
+  fft::fft_r2c_2d( in, out );
+  
+  // End timer
+  std::clock_t c_end = std::clock();
+  auto t_end = std::chrono::high_resolution_clock::now();
+  
+  // Print completion message and timing information
+  std::cout << std::fixed << std::setprecision(2) << "CPU time used: "
+            << 1000.0 * (c_end - c_start) / CLOCKS_PER_SEC << " ms\n"
+            << "Wall clock time passed: "
+            << std::chrono::duration<double, std::milli>(t_end-t_start).count()
+            << " ms\n" << std::endl;
+  }
   
   return 0;
 }

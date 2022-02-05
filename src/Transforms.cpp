@@ -59,6 +59,32 @@ void fft_c2r_2d( Scalar2D< std::complex< double > > &cVec, Scalar2D< double > &r
   fftw_destroy_plan( plan );
 }
 
+void fft_r2c_1d_thread( Scalar1D< double > &rVec, Scalar1D< std::complex< double > > &cVec )
+{
+  int err = fftw_init_threads();
+  fftw_plan_with_nthreads( 4 );
+  fft_r2c_1d( rVec, cVec );
+  fftw_cleanup_threads();
+}
+
+void fft_c2r_1d_thread( Scalar1D< std::complex< double > > &cVec, Scalar1D< double > &rVec )
+{
+  
+}
+
+void fft_r2c_2d_thread( Scalar2D< double > &rVec, Scalar2D< std::complex< double > > &cVec )
+{
+  int err = fftw_init_threads();
+  fftw_plan_with_nthreads( 6 );
+  fft_r2c_2d( rVec, cVec );
+  fftw_cleanup_threads();
+}
+
+void fft_c2r_2d_thread( Scalar2D< std::complex< double > > &cVec, Scalar2D< double > &rVec )
+{
+  
+}
+
 void scaleOutput( Scalar2D< double > &f_phys )
 {
   int N = static_cast< int >( f_phys.rows() );
