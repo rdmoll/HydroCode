@@ -8,6 +8,9 @@
 #ifndef Scalar3D_h
 #define Scalar3D_h
 
+#include <iostream>
+#include <memory>
+
 template< class T >
 class Scalar3D
 {

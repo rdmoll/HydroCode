@@ -22,6 +22,7 @@ file( GLOB HEADERS "include/*.h" )
 #Link libraries
 add_executable( hydroTest ${SOURCES} ${HEADERS} )
 target_link_libraries( hydroTest ${FFTW_DOUBLE_LIB} )
+target_link_libraries( hydroTest ${FFTW_DOUBLE_THREADS_LIB} )
 target_link_libraries( hydroTest ${NETCDF_DOUBLE_LIB} )
 target_link_libraries( hydroTest ${NETCDF_CPP_LIB} )
 target_link_libraries( hydroTest ${NETCDF_FLOAT_LIB} )
