@@ -32,14 +32,15 @@ public:
   void testDeriv1D();
   void testDeriv2D();
   void testReadWriteIO();
-  void testWriteIO();
-  void testReadIO();
   
   void simpleAdvDiff( std::string paramFile );
   void simpleAdvDiffNL( std::string paramFile );
   
 protected:
   const double pi = std::acos( -1.0 );
+  
+  void testWriteIO();
+  void testReadIO();
 };
 
 } // diagnostics

@@ -45,7 +45,8 @@ void TestSolver::setInitConditions( Scalar2D< double >& T_phys,
 
 void TestSolver::runSimulation()
 {
-  std::cout << "Run Simulation" << std::endl;
+  std::cout << "Running Simulation" << std::endl;
+  std::cout << std::endl;
   
   Scalar2D< double > T_phys( Ny, Nx );
   Scalar2D< double > u_phys( Ny, Nx );
@@ -58,10 +59,26 @@ void TestSolver::runSimulation()
   // Set initial conditions
   setInitConditions( T_phys, u_phys, v_phys );
   
+  // Start timer
+  std::clock_t c_start = std::clock();
+  auto t_start = std::chrono::high_resolution_clock::now();
+  
   // Start time step loop
   for( size_t t = 0; t < nSteps; t++)
   {
+    
   }
+  
+  // End timer
+  std::clock_t c_end = std::clock();
+  auto t_end = std::chrono::high_resolution_clock::now();
+  
+  // Print completion message and timing information
+  std::cout << std::fixed << std::setprecision(2) << "CPU time used: "
+            << 1000.0 * (c_end - c_start) / CLOCKS_PER_SEC << " ms\n"
+            << "Wall clock time passed: "
+            << std::chrono::duration<double, std::milli>(t_end-t_start).count()
+            << " ms\n" << std::endl;
 }
 
 }
