@@ -14,6 +14,8 @@
 #include <complex>
 #include "ReadParams.h"
 #include "Scalar2D.h"
+#include "Transforms.h"
+#include "ioNetCDF.h"
 
 namespace solvers
 {

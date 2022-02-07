@@ -117,3 +117,22 @@ Scalar3D< T >& operator*( Scalar3D< T >& arr1, Scalar3D< T >& arr2 )
   
   return arrOut;
 }
+
+template< class T >
+Scalar3D< T >& operator+( Scalar3D< T >& arr1, Scalar3D< T >& arr2 )
+{
+  static Scalar3D< T > arrOut( arr1.rows(), arr1.cols(), arr1.slices() );
+  
+  for( size_t i = 0; i < arr1.rows(); ++i )
+  {
+    for( size_t j = 0; j < arr1.cols(); ++j )
+    {
+      for( size_t k = 0; k < arr1.slices(); ++k )
+      {
+        arrOut( i, j, k ) = arr1( i, j, k ) + arr2( i, j, k );
+      }
+    }
+  }
+  
+  return arrOut;
+}

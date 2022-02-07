@@ -27,6 +27,9 @@ protected:
 template< class T >
 Scalar1D< T >& operator*( Scalar1D< T >& arr1, Scalar1D< T >& arr2 );
 
+template< class T >
+Scalar1D< T >& operator+( Scalar1D< T >& arr1, Scalar1D< T >& arr2 );
+
 #include "Scalar1D.it.h"
 
 #endif /* Scalar1D_h */

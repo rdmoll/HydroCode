@@ -30,6 +30,12 @@ protected:
   std::size_t _sliceSize;
 };
 
+template< class T >
+Scalar3D< T >& operator*( Scalar3D< T >& arr1, Scalar3D< T >& arr2 );
+
+template< class T >
+Scalar3D< T >& operator+( Scalar3D< T >& arr1, Scalar3D< T >& arr2 );
+
 #include "Scalar3D.it.h"
 
 #endif /* Scalar3D_h */

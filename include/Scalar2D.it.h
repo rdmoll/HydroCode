@@ -71,3 +71,52 @@ T& Scalar2D< T >::operator()( const std::size_t rowIndex, const std::size_t colI
 {
   return ( _data.get() )[ _colSize * rowIndex + colIndex ];
 }
+
+template< class T >
+Scalar2D< T >& Scalar2D< T >::operator=( Scalar2D< T >& arr )
+{
+  if( arr.rows() == _rowSize && arr.cols() == _colSize )
+  {
+    for( size_t i = 0; i < _rowSize; ++i )
+    {
+      for( size_t j = 0; j < _colSize; ++j )
+      {
+        set( i, j, arr( i, j ) );
+      }
+    }
+  }
+  
+  return *this;
+}
+
+template< class T >
+Scalar2D< T >& operator*( Scalar2D< T >& arr1, Scalar2D< T >& arr2 )
+{
+  static Scalar2D< T > arrOut( arr1.rows(), arr1.cols() );
+  
+  for( size_t i = 0; i < arr1.rows(); ++i )
+  {
+    for( size_t j = 0; j < arr1.cols(); ++j )
+    {
+      arrOut( i, j ) = arr1( i, j ) * arr2( i, j );
+    }
+  }
+  
+  return arrOut;
+}
+
+template< class T >
+Scalar2D< T >& operator+( Scalar2D< T >& arr1, Scalar2D< T >& arr2 )
+{
+  static Scalar2D< T > arrOut( arr1.rows(), arr1.cols() );
+  
+  for( size_t i = 0; i < arr1.rows(); ++i )
+  {
+    for( size_t j = 0; j < arr1.cols(); ++j )
+    {
+      arrOut( i, j ) = arr1( i, j ) + arr2( i, j );
+    }
+  }
+  
+  return arrOut;
+}

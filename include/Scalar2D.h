@@ -20,12 +20,19 @@ public:
   // Operators
   const T& operator()( const std::size_t rowIndex, const std::size_t colIndex ) const;
   T& operator()( const std::size_t rowIndex, const std::size_t colIndex );
+  Scalar2D< T >& operator=( Scalar2D< T >& arr );
   
 protected:
   std::unique_ptr< T > _data;
   std::size_t _rowSize;
   std::size_t _colSize;
 };
+
+template< class T >
+Scalar2D< T >& operator*( Scalar2D< T >& arr1, Scalar2D< T >& arr2 );
+
+template< class T >
+Scalar2D< T >& operator+( Scalar2D< T >& arr1, Scalar2D< T >& arr2 );
 
 #include "Scalar2D.it.h"
 

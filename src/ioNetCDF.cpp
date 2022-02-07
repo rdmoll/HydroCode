@@ -1,11 +1,4 @@
-//
-//  ioNetCDF.cpp
-//  HydroCode
-//
-//  Created by Ryan Moll on 12/26/20.
-//
-
-#include "../include/ioNetCDF.h"
+#include "ioNetCDF.h"
 
 namespace io
 {
@@ -56,57 +49,49 @@ ioNetCDF::~ioNetCDF()
   _dataFile.close();
 }
 
-void ioNetCDF::read_T( size_t readIndex, Scalar2D< double >& dataArray )
+void ioNetCDF::read_T( std::size_t readIndex, Scalar2D< double >& dataArray )
 {
-  double dataIn[ _xDimSize ][ _yDimSize ];
   _startp[ 0 ] = readIndex;
-  
   _data_T.getVar( _startp, _countp, dataArray.get() );
 }
 
-void ioNetCDF::read_C( size_t readIndex, Scalar2D< double >& dataArray )
+void ioNetCDF::read_C( std::size_t readIndex, Scalar2D< double >& dataArray )
 {
-  double dataIn[ _xDimSize ][ _yDimSize ];
   _startp[ 0 ] = readIndex;
-  
   _data_C.getVar( _startp, _countp, dataArray.get() );
 }
 
-void ioNetCDF::read_u( size_t readIndex, Scalar2D< double >& dataArray )
+void ioNetCDF::read_u( std::size_t readIndex, Scalar2D< double >& dataArray )
 {
-  double dataIn[ _xDimSize ][ _yDimSize ];
   _startp[ 0 ] = readIndex;
-  
   _data_u.getVar( _startp, _countp, dataArray.get() );
 }
 
-void ioNetCDF::read_v( size_t readIndex, Scalar2D< double >& dataArray )
+void ioNetCDF::read_v( std::size_t readIndex, Scalar2D< double >& dataArray )
 {
-  double dataIn[ _xDimSize ][ _yDimSize ];
   _startp[ 0 ] = readIndex;
-  
   _data_v.getVar( _startp, _countp, dataArray.get() );
 }
 
-void ioNetCDF::write_T( size_t writeIndex, Scalar2D< double >& dataArray )
+void ioNetCDF::write_T( std::size_t writeIndex, Scalar2D< double >& dataArray )
 {
   _startp[ 0 ] = writeIndex;
   _data_T.putVar( _startp, _countp, dataArray.get() );
 }
 
-void ioNetCDF::write_C( size_t writeIndex, Scalar2D< double >& dataArray )
+void ioNetCDF::write_C( std::size_t writeIndex, Scalar2D< double >& dataArray )
 {
   _startp[ 0 ] = writeIndex;
   _data_C.putVar( _startp, _countp, dataArray.get() );
 }
 
-void ioNetCDF::write_u( size_t writeIndex, Scalar2D< double >& dataArray )
+void ioNetCDF::write_u( std::size_t writeIndex, Scalar2D< double >& dataArray )
 {
   _startp[ 0 ] = writeIndex;
   _data_u.putVar( _startp, _countp, dataArray.get() );
 }
 
-void ioNetCDF::write_v( size_t writeIndex, Scalar2D< double >& dataArray )
+void ioNetCDF::write_v( std::size_t writeIndex, Scalar2D< double >& dataArray )
 {
   _startp[ 0 ] = writeIndex;
   _data_v.putVar( _startp, _countp, dataArray.get() );

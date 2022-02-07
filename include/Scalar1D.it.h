@@ -77,3 +77,16 @@ Scalar1D< T >& operator*( Scalar1D< T >& arr1, Scalar1D< T >& arr2 )
   
   return arrOut;
 }
+
+template< class T >
+Scalar1D< T >& operator+( Scalar1D< T >& arr1, Scalar1D< T >& arr2 )
+{
+  static Scalar1D< T > arrOut( arr1.size() );
+  
+  for( std::size_t i = 0; i < arr1.size(); ++i )
+  {
+    arrOut( i ) = arr1( i ) + arr2( i );
+  }
+  
+  return arrOut;
+}

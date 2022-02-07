@@ -48,6 +48,11 @@ void TestSolver::runSimulation()
   std::cout << "Running Simulation" << std::endl;
   std::cout << std::endl;
   
+  // Start timer
+  std::clock_t c_start = std::clock();
+  auto t_start = std::chrono::high_resolution_clock::now();
+  
+  // Initialize variables
   Scalar2D< double > T_phys( Ny, Nx );
   Scalar2D< double > u_phys( Ny, Nx );
   Scalar2D< double > v_phys( Ny, Nx );
@@ -56,17 +61,39 @@ void TestSolver::runSimulation()
   Scalar2D< std::complex< double > > u_spec( Ny, nOutX );
   Scalar2D< std::complex< double > > v_spec( Ny, nOutX );
   
+  // Initialize data writer
+  io::ioNetCDF testWriter( testWriterFile, Nx, Ny, 'w' );
+  
   // Set initial conditions
   setInitConditions( T_phys, u_phys, v_phys );
   
-  // Start timer
-  std::clock_t c_start = std::clock();
-  auto t_start = std::chrono::high_resolution_clock::now();
+  // Write initial conditions
+  testWriter.write_T( 0, T_phys );
+  testWriter.write_u( 0, u_phys );
+  testWriter.write_v( 0, v_phys );
   
   // Start time step loop
   for( size_t t = 0; t < nSteps; t++)
   {
+    // Transform: phys --> spec
+    fft::fft_r2c_2d( T_phys, T_spec );
+    fft::fft_r2c_2d( u_phys, u_spec );
+    fft::fft_r2c_2d( v_phys, v_spec );
     
+    // Transform: spec --> phys
+    fft::fft_c2r_2d( T_spec, T_phys );
+    fft::scaleOutput( T_phys );
+    
+    fft::fft_c2r_2d( u_spec, u_phys );
+    fft::scaleOutput( u_phys );
+    
+    fft::fft_c2r_2d( v_spec, v_phys );
+    fft::scaleOutput( v_phys );
+    
+    // Write data to file
+    testWriter.write_T( t + 1, T_phys );
+    testWriter.write_u( t + 1, u_phys );
+    testWriter.write_v( t + 1, v_phys );
   }
   
   // End timer
