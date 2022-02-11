@@ -22,6 +22,25 @@ TestSolver::TestSolver( std::string paramFile )
   nOutX = floor( Nx / 2 + 1 );
   nOutY = floor( Ny / 2 + 1 );
   totN = Nx * Ny;
+  
+  fourPiSq = 4.0 * M_PI * M_PI;
+  
+  totWvNum.setSize( Ny, nOutX );
+  for( int i = 0 ; i < nOutY ; i++ )
+  {
+    for( int j = 0 ; j < nOutX ; j++ )
+    {
+      totWvNum( i, j ) = ( i * i ) / ( Ly * Ly ) + ( j * j ) / ( Lx * Lx );
+    }
+  }
+  
+  for( int i = nOutY ; i < Ny ; i++ )
+  {
+    for( int j = 0 ; j < nOutX ; j++ )
+    {
+      totWvNum( i, j ) = ( ( Ny - i ) * ( Ny - i ) ) / ( Ly * Ly ) + ( j * j ) / ( Lx * Lx );
+    }
+  }
 }
 
 TestSolver::~TestSolver()
@@ -43,6 +62,16 @@ void TestSolver::setInitConditions( Scalar2D< double >& T_phys,
   }
 }
 
+void TestSolver::solve( Scalar2D< std::complex< double > >& f_spec,
+                        Scalar2D< std::complex< double > >& nl_spec,
+                        const double timeStep,
+                        const double diffusivity )
+{
+  const double diffFac = fourPiSq * deltaT * diffusivity;
+  
+  //f_spec = ( f_spec - ( timeStep * nl_spec ) ) / ( 1.0 + ( diffFac * totWvNum ) );
+}
+
 void TestSolver::runSimulation()
 {
   std::cout << "Running Simulation" << std::endl;
@@ -60,6 +89,10 @@ void TestSolver::runSimulation()
   Scalar2D< std::complex< double > > T_spec( Ny, nOutX );
   Scalar2D< std::complex< double > > u_spec( Ny, nOutX );
   Scalar2D< std::complex< double > > v_spec( Ny, nOutX );
+  
+  Scalar2D< std::complex< double > > nl_uT_spec( Ny, nOutX );
+  Scalar2D< std::complex< double > > nl_uu_spec( Ny, nOutX );
+  Scalar2D< std::complex< double > > nl_uv_spec( Ny, nOutX );
   
   // Initialize data writer
   io::ioNetCDF testWriter( testWriterFile, Nx, Ny, 'w' );
@@ -80,6 +113,10 @@ void TestSolver::runSimulation()
     fft::fft_r2c_2d( u_phys, u_spec );
     fft::fft_r2c_2d( v_phys, v_spec );
     
+    // Solve next time step
+    
+    solve( T_spec, nl_uT_spec, deltaT, kappa );
+    
     // Transform: spec --> phys
     fft::fft_c2r_2d( T_spec, T_phys );
     fft::scaleOutput( T_phys );
@@ -94,6 +131,8 @@ void TestSolver::runSimulation()
     testWriter.write_T( t + 1, T_phys );
     testWriter.write_u( t + 1, u_phys );
     testWriter.write_v( t + 1, v_phys );
+    
+    // Increment time pointers
   }
   
   // End timer

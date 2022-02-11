@@ -89,6 +89,8 @@ Scalar2D< T >& Scalar2D< T >::operator=( Scalar2D< T >& arr )
   return *this;
 }
 
+// Multiplication
+
 template< class T >
 Scalar2D< T >& operator*( Scalar2D< T >& arr1, Scalar2D< T >& arr2 )
 {
@@ -106,6 +108,90 @@ Scalar2D< T >& operator*( Scalar2D< T >& arr1, Scalar2D< T >& arr2 )
 }
 
 template< class T >
+Scalar2D< T >& operator*( T val, Scalar2D< T >& arr )
+{
+  static Scalar2D< T > arrOut( arr.rows(), arr.cols() );
+  
+  for( size_t i = 0; i < arr.rows(); ++i )
+  {
+    for( size_t j = 0; j < arr.cols(); ++j )
+    {
+      arrOut( i, j ) = val * arr( i, j );
+    }
+  }
+  
+  return arrOut;
+}
+
+template< class T >
+Scalar2D< T >& operator*( Scalar2D< T >& arr, T val )
+{
+  static Scalar2D< T > arrOut( arr.rows(), arr.cols() );
+
+  for( size_t i = 0; i < arr.rows(); ++i )
+  {
+    for( size_t j = 0; j < arr.cols(); ++j )
+    {
+      arrOut( i, j ) = val * arr( i, j );
+    }
+  }
+
+  return arrOut;
+}
+
+// Division
+
+template< class T >
+Scalar2D< T >& operator/( Scalar2D< T >& arr1, Scalar2D< T >& arr2 )
+{
+  static Scalar2D< T > arrOut( arr1.rows(), arr1.cols() );
+  
+  for( size_t i = 0; i < arr1.rows(); ++i )
+  {
+    for( size_t j = 0; j < arr1.cols(); ++j )
+    {
+      arrOut( i, j ) = arr1( i, j ) / arr2( i, j );
+    }
+  }
+  
+  return arrOut;
+}
+
+template< class T >
+Scalar2D< T >& operator/( T val, Scalar2D< T >& arr )
+{
+  static Scalar2D< T > arrOut( arr.rows(), arr.cols() );
+  
+  for( size_t i = 0; i < arr.rows(); ++i )
+  {
+    for( size_t j = 0; j < arr.cols(); ++j )
+    {
+      arrOut( i, j ) = val / arr( i, j );
+    }
+  }
+  
+  return arrOut;
+}
+
+template< class T >
+Scalar2D< T >& operator/( Scalar2D< T >& arr, T val )
+{
+  static Scalar2D< T > arrOut( arr.rows(), arr.cols() );
+  
+  for( size_t i = 0; i < arr.rows(); ++i )
+  {
+    for( size_t j = 0; j < arr.cols(); ++j )
+    {
+      arrOut( i, j ) = arr( i, j ) / val;
+    }
+  }
+  
+  return arrOut;
+}
+
+// Addition
+
+template< class T >
 Scalar2D< T >& operator+( Scalar2D< T >& arr1, Scalar2D< T >& arr2 )
 {
   static Scalar2D< T > arrOut( arr1.rows(), arr1.cols() );
@@ -115,6 +201,88 @@ Scalar2D< T >& operator+( Scalar2D< T >& arr1, Scalar2D< T >& arr2 )
     for( size_t j = 0; j < arr1.cols(); ++j )
     {
       arrOut( i, j ) = arr1( i, j ) + arr2( i, j );
+    }
+  }
+  
+  return arrOut;
+}
+
+template< class T >
+Scalar2D< T >& operator+( T val, Scalar2D< T >& arr )
+{
+  static Scalar2D< T > arrOut( arr.rows(), arr.cols() );
+  
+  for( size_t i = 0; i < arr.rows(); ++i )
+  {
+    for( size_t j = 0; j < arr.cols(); ++j )
+    {
+      arrOut( i, j ) = val + arr( i, j );
+    }
+  }
+  
+  return arrOut;
+}
+
+template< class T >
+Scalar2D< T >& operator+( Scalar2D< T >& arr, T val )
+{
+  static Scalar2D< T > arrOut( arr.rows(), arr.cols() );
+  
+  for( size_t i = 0; i < arr.rows(); ++i )
+  {
+    for( size_t j = 0; j < arr.cols(); ++j )
+    {
+      arrOut( i, j ) = val + arr( i, j );
+    }
+  }
+  
+  return arrOut;
+}
+
+// Subtraction
+
+template< class T >
+Scalar2D< T >& operator-( Scalar2D< T >& arr1, Scalar2D< T >& arr2 )
+{
+  static Scalar2D< T > arrOut( arr1.rows(), arr1.cols() );
+  
+  for( size_t i = 0; i < arr1.rows(); ++i )
+  {
+    for( size_t j = 0; j < arr1.cols(); ++j )
+    {
+      arrOut( i, j ) = arr1( i, j ) - arr2( i, j );
+    }
+  }
+  
+  return arrOut;
+}
+
+template< class T >
+Scalar2D< T >& operator-( T val, Scalar2D< T >& arr )
+{
+  static Scalar2D< T > arrOut( arr.rows(), arr.cols() );
+  
+  for( size_t i = 0; i < arr.rows(); ++i )
+  {
+    for( size_t j = 0; j < arr.cols(); ++j )
+    {
+      arrOut( i, j ) = val - arr( i, j );
+    }
+  }
+  
+  return arrOut;
+}
+
+template< class T >
+Scalar2D< T >& operator-( Scalar2D< T >& arr, T val )
+{
+  static Scalar2D< T > arrOut( arr.rows(), arr.cols() );
+  
+  for( size_t i = 0; i < arr.rows(); ++i )
+  {
+    for( size_t j = 0; j < arr.cols(); ++j )
+    {
+      arrOut( i, j ) = arr( i, j ) - val;
     }
   }
   

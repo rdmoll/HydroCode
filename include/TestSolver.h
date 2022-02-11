@@ -30,6 +30,11 @@ public:
                           Scalar2D< double >& u_phys,
                           Scalar2D< double >& v_phys );
   
+  void solve( Scalar2D< std::complex< double > >& f_spec,
+              Scalar2D< std::complex< double > >& nl_spec,
+              const double timeStep,
+              const double diffusivity );
+  
   void runSimulation();
   
 protected:
@@ -45,6 +50,8 @@ protected:
   size_t totN;
   
   const double pi = std::acos( -1.0 );
+  double fourPiSq;
+  Scalar2D< double > totWvNum;
 };
 
 }

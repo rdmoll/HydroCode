@@ -28,11 +28,49 @@ protected:
   std::size_t _colSize;
 };
 
+// Multiplication
+
 template< class T >
 Scalar2D< T >& operator*( Scalar2D< T >& arr1, Scalar2D< T >& arr2 );
 
 template< class T >
+Scalar2D< T >& operator*( T& val, Scalar2D< T >& arr );
+
+template< class T >
+Scalar2D< T >& operator*( Scalar2D< T >& arr, T& val );
+
+// Division
+
+template< class T >
+Scalar2D< T >& operator/( Scalar2D< T >& arr1, Scalar2D< T >& arr2 );
+
+template< class T >
+Scalar2D< T >& operator/( T& val, Scalar2D< T >& arr );
+
+template< class T >
+Scalar2D< T >& operator/( Scalar2D< T >& arr, T& val );
+
+// Addition
+
+template< class T >
 Scalar2D< T >& operator+( Scalar2D< T >& arr1, Scalar2D< T >& arr2 );
+
+template< class T >
+Scalar2D< T >& operator+( T& val, Scalar2D< T >& arr );
+
+template< class T >
+Scalar2D< T >& operator+( Scalar2D< T >& arr, T& val );
+
+// Subtraction
+
+template< class T >
+Scalar2D< T >& operator-( Scalar2D< T >& arr1, Scalar2D< T >& arr2 );
+
+template< class T >
+Scalar2D< T >& operator-( T& val, Scalar2D< T >& arr );
+
+template< class T >
+Scalar2D< T >& operator-( Scalar2D< T >& arr, T& val );
 
 #include "Scalar2D.it.h"
 
