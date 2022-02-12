@@ -11,13 +11,13 @@ namespace mathOps
 void calcDeriv( Scalar1D< std::complex< double > >& f_spec,
                 Scalar1D< std::complex< double > >& df_spec );
 
-void calcDerivX( Scalar2D< std::complex< double > >& f_spec,
-                 Scalar2D< std::complex< double > >& df_spec,
-                 std::size_t Nx, std::size_t Ny, double Lx );
-
 void calcDerivY( Scalar2D< std::complex< double > >& f_spec,
                  Scalar2D< std::complex< double > >& df_spec,
                  std::size_t Nx, std::size_t Ny, double Ly );
+
+void calcDerivX( Scalar2D< std::complex< double > >& f_spec,
+                 Scalar2D< std::complex< double > >& df_spec,
+                 std::size_t Nx, std::size_t Ny, double Lx );
 
 void calcDeriv2();
 

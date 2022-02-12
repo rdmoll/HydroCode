@@ -1,4 +1,5 @@
 #include "TestSolver.h"
+#include "MathOps.h"
 
 namespace solvers
 {
@@ -62,14 +63,41 @@ void TestSolver::setInitConditions( Scalar2D< double >& T_phys,
   }
 }
 
+void TestSolver::calcNL( Scalar2D< double >& f1_phys,
+                         Scalar2D< double >& f2_phys,
+                         Scalar2D< std::complex< double > >& f3_spec,
+                         Scalar2D< std::complex< double > >& nl_spec )
+{
+  Scalar2D< std::complex< double > > df3dx_spec( Ny, nOutX );
+  Scalar2D< std::complex< double > > df3dy_spec( Ny, nOutX );
+  Scalar2D< double > df3dx_phys( Ny, Nx );
+  Scalar2D< double > df3dy_phys( Ny, Nx );
+  Scalar2D< double > nl_phys( Ny, Nx );
+  
+  mathOps::calcDerivX( f3_spec, df3dx_spec, Nx, Ny, Lx );
+  mathOps::calcDerivY( f3_spec, df3dy_spec, Nx, Ny, Ly );
+  
+  fft::fft_c2r_2d( df3dx_spec, df3dx_phys );
+  fft::scaleOutput( df3dx_phys );
+  
+  fft::fft_c2r_2d( df3dy_spec, df3dy_phys );
+  fft::scaleOutput( df3dy_phys );
+  
+  nl_phys = f1_phys * df3dx_phys + f2_phys * df3dy_phys;
+  
+  fft::fft_r2c_2d( nl_phys, nl_spec );
+}
+
 void TestSolver::solve( Scalar2D< std::complex< double > >& f_spec,
                         Scalar2D< std::complex< double > >& nl_spec,
                         const double timeStep,
                         const double diffusivity )
 {
-  const double diffFac = fourPiSq * deltaT * diffusivity;
+  const std::complex< double > diffFac = std::complex< double >( fourPiSq * deltaT * diffusivity );
+  const std::complex< double > timeStepC = std::complex< double >( timeStep, 0.0 );
+  const std::complex< double > oneC = std::complex< double >( 1.0, 0 );
   
-  //f_spec = ( f_spec - ( timeStep * nl_spec ) ) / ( 1.0 + ( diffFac * totWvNum ) );
+  f_spec = ( f_spec - ( timeStepC * nl_spec ) ) / ( oneC + ( diffFac * totWvNum ) );
 }
 
 void TestSolver::runSimulation()
@@ -90,9 +118,9 @@ void TestSolver::runSimulation()
   Scalar2D< std::complex< double > > u_spec( Ny, nOutX );
   Scalar2D< std::complex< double > > v_spec( Ny, nOutX );
   
-  Scalar2D< std::complex< double > > nl_uT_spec( Ny, nOutX );
-  Scalar2D< std::complex< double > > nl_uu_spec( Ny, nOutX );
-  Scalar2D< std::complex< double > > nl_uv_spec( Ny, nOutX );
+  Scalar2D< std::complex< double > > nl_T_spec( Ny, nOutX );
+  Scalar2D< std::complex< double > > nl_u_spec( Ny, nOutX );
+  Scalar2D< std::complex< double > > nl_v_spec( Ny, nOutX );
   
   // Initialize data writer
   io::ioNetCDF testWriter( testWriterFile, Nx, Ny, 'w' );
@@ -113,9 +141,15 @@ void TestSolver::runSimulation()
     fft::fft_r2c_2d( u_phys, u_spec );
     fft::fft_r2c_2d( v_phys, v_spec );
     
-    // Solve next time step
+    // Calculate nonlinear terms
+    calcNL( u_phys, v_phys, T_spec, nl_T_spec );
+    calcNL( u_phys, v_phys, u_spec, nl_u_spec );
+    calcNL( u_phys, v_phys, v_spec, nl_v_spec );
     
-    solve( T_spec, nl_uT_spec, deltaT, kappa );
+    // Solve next time step
+    solve( T_spec, nl_T_spec, deltaT, kappa );
+    solve( u_spec, nl_u_spec, deltaT, nu );
+    solve( v_spec, nl_v_spec, deltaT, nu );
     
     // Transform: spec --> phys
     fft::fft_c2r_2d( T_spec, T_phys );
