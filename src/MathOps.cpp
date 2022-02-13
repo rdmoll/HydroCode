@@ -1,4 +1,4 @@
-#include "../include/MathOps.h"
+#include "MathOps.h"
 
 namespace mathOps
 {

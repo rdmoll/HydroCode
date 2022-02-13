@@ -17,7 +17,7 @@ TestSolver::TestSolver( std::string paramFile )
   Lx = parameterFile.dParam[ "Lx" ];
   Ly = parameterFile.dParam[ "Ly" ];
   nu = parameterFile.dParam[ "nu" ];
-  kappa = parameterFile.dParam[ "kappa" ];
+  kappa = parameterFile.dParam[ "kappaT" ];
   testWriterFile = parameterFile.strParam[ "dataFile" ];
   
   nOutX = floor( Nx / 2 + 1 );
@@ -57,7 +57,7 @@ void TestSolver::setInitConditions( Scalar2D< double >& T_phys,
     for( int j = 0; j < Nx; ++j )
     {
       T_phys( i, j ) = std::cos( i * ( 2.0 * M_PI / Ny ) ) * std::sin( j * ( 2.0 * M_PI / Nx ) );
-      u_phys( i, j ) = std::cos( i * ( 2.0 * M_PI / Ny ) ) * std::cos( j * ( 2.0 * M_PI / Nx ) );
+      u_phys( i, j ) = 100.0; //std::cos( i * ( 2.0 * M_PI / Ny ) ) * std::cos( j * ( 2.0 * M_PI / Nx ) );
       v_phys( i, j ) = 0.0 * std::sin( i * ( 2.0 * M_PI / Ny ) ) * std::sin( j * ( 4.0 * M_PI / Nx ) );
     }
   }
@@ -102,7 +102,8 @@ void TestSolver::solve( Scalar2D< std::complex< double > >& f_spec,
 
 void TestSolver::runSimulation()
 {
-  std::cout << "Running Simulation" << std::endl;
+  std::cout << "-- Running Simulation --" << std::endl;
+  std::cout << "Writing to file: " << testWriterFile << std::endl;
   std::cout << std::endl;
   
   // Start timer
