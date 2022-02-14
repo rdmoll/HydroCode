@@ -62,14 +62,15 @@ void TestSolver::setInitConditions( Scalar2D< double >& T_phys,
   {
     for( int j = 0; j < Nx; ++j )
     {
-      T_phys( i, j ) = std::cos( i * ( 2.0 * M_PI / Ny ) ) * std::sin( j * ( 2.0 * M_PI / Nx ) );
-      u_phys( i, j ) = -0.5 * std::cos( i * ( 2.0 * M_PI / Ny ) );
-      v_phys( i, j ) = 0.05 * std::sin( j * ( 2.0 * M_PI / Nx ) );
+      T_phys( i, j ) = std::sin( i * ( 2.0 * M_PI / Ny ) ); //std::cos( i * ( 2.0 * M_PI / Ny ) ) * std::sin( j * ( 2.0 * M_PI / Nx ) );
+      u_phys( i, j ) = -0.25 * std::cos( i * ( 2.0 * M_PI / Ny ) );
+      v_phys( i, j ) = 0.5 * std::sin( j * ( 8.0 * M_PI / Nx ) );
     }
   }
   
   fft::fft_r2c_2d( T_phys, init_T_spec );
   fft::fft_r2c_2d( u_phys, init_u_spec );
+  fft::fft_r2c_2d( v_phys, init_v_spec );
     
   for( int i = 0; i < Ny; ++i )
   {
@@ -85,7 +86,7 @@ void TestSolver::setInitConditions( Scalar2D< double >& T_phys,
       
       double v_randValR = 2.0 * ( ( double ) rand() / ( RAND_MAX ) ) - 1;
       double v_randValC = 2.0 * ( ( double ) rand() / ( RAND_MAX ) ) - 1;
-      init_v_spec( i, j ) = 0.01 * std::complex< double >( v_randValR, v_randValC );
+      init_v_spec( i, j ) += 0.01 * std::complex< double >( v_randValR, v_randValC );
     }
   }
   
