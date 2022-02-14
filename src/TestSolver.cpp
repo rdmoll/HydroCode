@@ -52,15 +52,49 @@ void TestSolver::setInitConditions( Scalar2D< double >& T_phys,
                                     Scalar2D< double >& u_phys,
                                     Scalar2D< double >& v_phys )
 {
+  std::srand( time( NULL ) );
+  
+  Scalar2D< std::complex< double > > init_T_spec( Ny, nOutX );
+  Scalar2D< std::complex< double > > init_u_spec( Ny, nOutX );
+  Scalar2D< std::complex< double > > init_v_spec( Ny, nOutX );
+  
   for( int i = 0; i < Ny; ++i )
   {
     for( int j = 0; j < Nx; ++j )
     {
       T_phys( i, j ) = std::cos( i * ( 2.0 * M_PI / Ny ) ) * std::sin( j * ( 2.0 * M_PI / Nx ) );
-      u_phys( i, j ) = 100.0; //std::cos( i * ( 2.0 * M_PI / Ny ) ) * std::cos( j * ( 2.0 * M_PI / Nx ) );
-      v_phys( i, j ) = 0.0 * std::sin( i * ( 2.0 * M_PI / Ny ) ) * std::sin( j * ( 4.0 * M_PI / Nx ) );
+      u_phys( i, j ) = -0.5 * std::cos( i * ( 2.0 * M_PI / Ny ) );
+      v_phys( i, j ) = 0.05 * std::sin( j * ( 2.0 * M_PI / Nx ) );
     }
   }
+  
+  fft::fft_r2c_2d( T_phys, init_T_spec );
+  fft::fft_r2c_2d( u_phys, init_u_spec );
+    
+  for( int i = 0; i < Ny; ++i )
+  {
+    for( int j = 0; j < nOutX; ++j )
+    {
+      double T_randValR = 2.0 * ( ( double ) rand() / ( RAND_MAX ) ) - 1;
+      double T_randValC = 2.0 * ( ( double ) rand() / ( RAND_MAX ) ) - 1;
+      init_T_spec( i, j ) += 0.01 * std::complex< double >( T_randValR, T_randValC );
+      
+      double u_randValR = 2.0 * ( ( double ) rand() / ( RAND_MAX ) ) - 1;
+      double u_randValC = 2.0 * ( ( double ) rand() / ( RAND_MAX ) ) - 1;
+      init_u_spec( i, j ) += 0.01 * std::complex< double >( u_randValR, u_randValC );
+      
+      double v_randValR = 2.0 * ( ( double ) rand() / ( RAND_MAX ) ) - 1;
+      double v_randValC = 2.0 * ( ( double ) rand() / ( RAND_MAX ) ) - 1;
+      init_v_spec( i, j ) = 0.01 * std::complex< double >( v_randValR, v_randValC );
+    }
+  }
+  
+  fft::fft_c2r_2d( init_T_spec, T_phys );
+  fft::scaleOutput( T_phys );
+  fft::fft_c2r_2d( init_u_spec, u_phys );
+  fft::scaleOutput( u_phys );
+  fft::fft_c2r_2d( init_v_spec, v_phys );
+  fft::scaleOutput( v_phys );
 }
 
 void TestSolver::calcNL( Scalar2D< double >& f1_phys,
@@ -72,6 +106,8 @@ void TestSolver::calcNL( Scalar2D< double >& f1_phys,
   Scalar2D< std::complex< double > > df3dy_spec( Ny, nOutX );
   Scalar2D< double > df3dx_phys( Ny, Nx );
   Scalar2D< double > df3dy_phys( Ny, Nx );
+  Scalar2D< double > nl_x_phys( Ny, Nx );
+  Scalar2D< double > nl_y_phys( Ny, Nx );
   Scalar2D< double > nl_phys( Ny, Nx );
   
   mathOps::calcDerivX( f3_spec, df3dx_spec, Nx, Ny, Lx );
@@ -83,7 +119,9 @@ void TestSolver::calcNL( Scalar2D< double >& f1_phys,
   fft::fft_c2r_2d( df3dy_spec, df3dy_phys );
   fft::scaleOutput( df3dy_phys );
   
-  nl_phys = f1_phys * df3dx_phys + f2_phys * df3dy_phys;
+  nl_x_phys = f1_phys * df3dx_phys;
+  nl_y_phys = f2_phys * df3dy_phys;
+  nl_phys = nl_x_phys + nl_y_phys;
   
   fft::fft_r2c_2d( nl_phys, nl_spec );
 }
