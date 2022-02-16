@@ -2,13 +2,13 @@
 #include <memory>
 
 template< class T >
-Scalar3D< T >::Scalar3D( std::size_t rowSize, std::size_t colSize, std::size_t sliceSize )
+Scalar3D< T >::Scalar3D( std::size_t sliceSize, std::size_t rowSize, std::size_t colSize )
 {
+  _sliceSize = sliceSize;
   _rowSize = rowSize;
   _colSize = colSize;
-  _sliceSize = sliceSize;
   
-  _data = std::unique_ptr< T >( new T[ _rowSize * _colSize * _sliceSize ] );
+  _data = std::unique_ptr< T >( new T[ _sliceSize * _rowSize * _colSize ] );
 }
 
 template< class T >
@@ -17,9 +17,9 @@ Scalar3D< T >::~Scalar3D()
 }
 
 template< class T >
-void Scalar3D< T >::set( std::size_t rowIndex, std::size_t colIndex, std::size_t sliceIndex, T value )
+void Scalar3D< T >::set( std::size_t sliceIndex, std::size_t rowIndex, std::size_t colIndex, T value )
 {
-  ( _data.get() )[ _sliceSize*_colSize*rowIndex + _sliceSize*colIndex + sliceIndex ] = value;
+  ( _data.get() )[ _rowSize*_colSize*sliceIndex + _colSize*rowIndex + colIndex ] = value;
 }
 
 template< class T >
@@ -34,13 +34,13 @@ void Scalar3D< T >::set( T* arrayPtr )
 }
 
 template< class T >
-void Scalar3D< T >::setSize( std::size_t rowSize, std::size_t colSize, std::size_t sliceSize )
+void Scalar3D< T >::setSize( std::size_t sliceSize, std::size_t rowSize, std::size_t colSize )
 {
   _rowSize = rowSize;
   _colSize = colSize;
   _sliceSize = sliceSize;
   
-  _data = std::unique_ptr< T >( new T[ _rowSize * _colSize * _sliceSize ] );
+  _data = std::unique_ptr< T >( new T[ _sliceSize * _rowSize * _colSize ] );
 }
 
 template< class T >
@@ -68,15 +68,15 @@ std::size_t Scalar3D< T >::slices()
 }
 
 template< class T >
-const T& Scalar3D< T >::operator()( const std::size_t rowIndex, const std::size_t colIndex, const std::size_t sliceIndex ) const
+const T& Scalar3D< T >::operator()( const std::size_t sliceIndex, const std::size_t rowIndex, const std::size_t colIndex ) const
 {
-  return ( _data.get() )[ _sliceSize*_colSize*rowIndex + _sliceSize*colIndex + sliceIndex ];
+  return ( _data.get() )[ _rowSize*_colSize*sliceIndex + _colSize*rowIndex + colIndex ];
 }
 
 template< class T >
-T& Scalar3D< T >::operator()( const std::size_t rowIndex, const std::size_t colIndex, const std::size_t sliceIndex )
+T& Scalar3D< T >::operator()( const std::size_t sliceIndex, const std::size_t rowIndex, const std::size_t colIndex )
 {
-  return ( _data.get() )[ _sliceSize*_colSize*rowIndex + _sliceSize*colIndex + sliceIndex ];
+  return ( _data.get() )[ _rowSize*_colSize*sliceIndex + _colSize*rowIndex + colIndex ];
 }
 
 template< class T >
@@ -84,11 +84,11 @@ Scalar3D< T >& Scalar3D< T >::operator=( Scalar3D< T >& arr )
 {
   if( arr.rows() == _rowSize && arr.cols() == _colSize && arr.slices() == _sliceSize )
   {
-    for( size_t i = 0; i < _rowSize; ++i )
+    for( size_t i = 0; i < _sliceSize; ++i )
     {
-      for( size_t j = 0; j < _colSize; ++j )
+      for( size_t j = 0; j < _rowSize; ++j )
       {
-        for( size_t k = 0; k < _sliceSize; ++k )
+        for( size_t k = 0; k < _colSize; ++k )
         {
           set( i, j, k, arr( i, j, k ) );
         }
@@ -99,40 +99,106 @@ Scalar3D< T >& Scalar3D< T >::operator=( Scalar3D< T >& arr )
   return *this;
 }
 
+// Multiplication
+
 template< class T >
 Scalar3D< T >& operator*( Scalar3D< T >& arr1, Scalar3D< T >& arr2 )
 {
-  static Scalar3D< T > arrOut( arr1.rows(), arr1.cols(), arr1.slices() );
-  
-  for( size_t i = 0; i < arr1.rows(); ++i )
-  {
-    for( size_t j = 0; j < arr1.cols(); ++j )
-    {
-      for( size_t k = 0; k < arr1.slices(); ++k )
-      {
-        arrOut( i, j, k ) = arr1( i, j, k ) * arr2( i, j, k );
-      }
-    }
-  }
+  static Scalar3D< T > arrOut( arr1.slices(), arr1.rows(), arr1.cols() );
   
   return arrOut;
 }
 
 template< class T >
+Scalar3D< T >& operator*( T& val, Scalar3D< T >& arr )
+{
+  static Scalar3D< T > arrOut( arr.slices(), arr.rows(), arr.cols() );
+  
+  return arrOut;
+}
+
+template< class T >
+Scalar3D< T >& operator*( Scalar3D< T >& arr, T& val )
+{
+  static Scalar3D< T > arrOut( arr.slices(), arr.rows(), arr.cols() );
+  
+  return arrOut;
+}
+
+// Division
+
+template< class T >
+Scalar3D< T >& operator/( Scalar3D< T >& arr1, Scalar3D< T >& arr2 )
+{
+  static Scalar3D< T > arrOut( arr1.slices(), arr1.rows(), arr1.cols() );
+  
+  return arrOut;
+}
+
+template< class T >
+Scalar3D< T >& operator/( T& val, Scalar3D< T >& arr )
+{
+  static Scalar3D< T > arrOut( arr.slices(), arr.rows(), arr.cols() );
+  
+  return arrOut;
+}
+
+template< class T >
+Scalar3D< T >& operator/( Scalar3D< T >& arr, T& val )
+{
+  static Scalar3D< T > arrOut( arr.slices(), arr.rows(), arr.cols() );
+  
+  return arrOut;
+}
+
+// Addition
+
+template< class T >
 Scalar3D< T >& operator+( Scalar3D< T >& arr1, Scalar3D< T >& arr2 )
 {
-  static Scalar3D< T > arrOut( arr1.rows(), arr1.cols(), arr1.slices() );
+  static Scalar3D< T > arrOut( arr1.slices(), arr1.rows(), arr1.cols() );
   
-  for( size_t i = 0; i < arr1.rows(); ++i )
-  {
-    for( size_t j = 0; j < arr1.cols(); ++j )
-    {
-      for( size_t k = 0; k < arr1.slices(); ++k )
-      {
-        arrOut( i, j, k ) = arr1( i, j, k ) + arr2( i, j, k );
-      }
-    }
-  }
+  return arrOut;
+}
+
+template< class T >
+Scalar3D< T >& operator+( T& val, Scalar3D< T >& arr )
+{
+  static Scalar3D< T > arrOut( arr.slices(), arr.rows(), arr.cols() );
+  
+  return arrOut;
+}
+
+template< class T >
+Scalar3D< T >& operator+( Scalar3D< T >& arr, T& val )
+{
+  static Scalar3D< T > arrOut( arr.slices(), arr.rows(), arr.cols() );
+  
+  return arrOut;
+}
+
+// Subtraction
+
+template< class T >
+Scalar3D< T >& operator-( Scalar3D< T >& arr1, Scalar3D< T >& arr2 )
+{
+  static Scalar3D< T > arrOut( arr1.slices(), arr1.rows(), arr1.cols() );
+  
+  return arrOut;
+}
+
+template< class T >
+Scalar3D< T >& operator-( T& val, Scalar3D< T >& arr )
+{
+  static Scalar3D< T > arrOut( arr.slices(), arr.rows(), arr.cols() );
+  
+  return arrOut;
+}
+
+template< class T >
+Scalar3D< T >& operator-( Scalar3D< T >& arr, T& val )
+{
+  static Scalar3D< T > arrOut( arr.slices(), arr.rows(), arr.cols() );
   
   return arrOut;
 }

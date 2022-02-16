@@ -1,10 +1,10 @@
-#include "TestSolver.h"
+#include "TestSolver2.h"
 #include "MathOps.h"
 
 namespace solvers
 {
 
-TestSolver::TestSolver( std::string paramFile )
+TestSolver2::TestSolver2( std::string paramFile )
 {
   // Read parameters from file
   const char* delimiter = "=";
@@ -44,13 +44,13 @@ TestSolver::TestSolver( std::string paramFile )
   }
 }
 
-TestSolver::~TestSolver()
+TestSolver2::~TestSolver2()
 {
 }
 
-void TestSolver::setInitConditions( Scalar2D< double >& T_phys,
-                                    Scalar2D< double >& u_phys,
-                                    Scalar2D< double >& v_phys )
+void TestSolver2::setInitConditions( Scalar2D< double >& T_phys,
+                                     Scalar2D< double >& u_phys,
+                                     Scalar2D< double >& v_phys )
 {
   std::srand( time( NULL ) );
   
@@ -62,9 +62,9 @@ void TestSolver::setInitConditions( Scalar2D< double >& T_phys,
   {
     for( int j = 0; j < Nx; ++j )
     {
-      T_phys( i, j ) = std::sin( j * ( 2.0 * M_PI / Nx ) ); //std::sin( i * ( 2.0 * M_PI / Ny ) ) * std::sin( j * ( 2.0 * M_PI / Nx ) );
-      u_phys( i, j ) = -0.5 * std::sin( i * ( 2.0 * M_PI / Ny ) ); //-0.5 * std::cos( i * ( 2.0 * M_PI / Ny ) );
-      v_phys( i, j ) = 0.0; //0.5 * std::sin( j * ( 2.0 * M_PI / Nx ) );
+      T_phys( i, j ) = std::sin( i * ( 2.0 * M_PI / Ny ) ); //std::cos( i * ( 2.0 * M_PI / Ny ) ) * std::sin( j * ( 2.0 * M_PI / Nx ) );
+      u_phys( i, j ) = -0.25 * std::cos( i * ( 2.0 * M_PI / Ny ) );
+      v_phys( i, j ) = 0.5 * std::sin( j * ( 8.0 * M_PI / Nx ) );
     }
   }
   
@@ -98,10 +98,10 @@ void TestSolver::setInitConditions( Scalar2D< double >& T_phys,
   fft::scaleOutput( v_phys );
 }
 
-void TestSolver::calcNL( Scalar2D< double >& f1_phys,
-                         Scalar2D< double >& f2_phys,
-                         Scalar2D< std::complex< double > >& f3_spec,
-                         Scalar2D< std::complex< double > >& nl_spec )
+void TestSolver2::calcNL( Scalar2D< double >& f1_phys,
+                          Scalar2D< double >& f2_phys,
+                          Scalar2D< std::complex< double > >& f3_spec,
+                          Scalar2D< std::complex< double > >& nl_spec )
 {
   Scalar2D< std::complex< double > > df3dx_spec( Ny, nOutX );
   Scalar2D< std::complex< double > > df3dy_spec( Ny, nOutX );
@@ -127,10 +127,10 @@ void TestSolver::calcNL( Scalar2D< double >& f1_phys,
   fft::fft_r2c_2d( nl_phys, nl_spec );
 }
 
-void TestSolver::solve( Scalar2D< std::complex< double > >& f_spec,
-                        Scalar2D< std::complex< double > >& nl_spec,
-                        const double timeStep,
-                        const double diffusivity )
+void TestSolver2::solve( Scalar2D< std::complex< double > >& f_spec,
+                         Scalar2D< std::complex< double > >& nl_spec,
+                         const double timeStep,
+                         const double diffusivity )
 {
   const std::complex< double > diffFac = std::complex< double >( fourPiSq * deltaT * diffusivity );
   const std::complex< double > timeStepC = std::complex< double >( timeStep, 0.0 );
@@ -139,7 +139,7 @@ void TestSolver::solve( Scalar2D< std::complex< double > >& f_spec,
   f_spec = ( f_spec - ( timeStepC * nl_spec ) ) / ( oneC + ( diffFac * totWvNum ) );
 }
 
-void TestSolver::runSimulation()
+void TestSolver2::runSimulation()
 {
   std::cout << "-- Running Simulation --" << std::endl;
   std::cout << "Writing to file: " << testWriterFile << std::endl;
@@ -150,32 +150,46 @@ void TestSolver::runSimulation()
   auto t_start = std::chrono::high_resolution_clock::now();
   
   // Initialize variables
-  Scalar2D< double > T_phys( Ny, Nx );
-  Scalar2D< double > u_phys( Ny, Nx );
-  Scalar2D< double > v_phys( Ny, Nx );
+  std::vector< Scalar2D< double > > T_phys( 4 );
+  std::vector< Scalar2D< double > > u_phys( 4 );
+  std::vector< Scalar2D< double > > v_phys( 4 );
   
-  Scalar2D< std::complex< double > > T_spec( Ny, nOutX );
-  Scalar2D< std::complex< double > > u_spec( Ny, nOutX );
-  Scalar2D< std::complex< double > > v_spec( Ny, nOutX );
+  std::vector< Scalar2D< std::complex< double > > > T_spec( 4 );
+  std::vector< Scalar2D< std::complex< double > > > u_spec( 4 );
+  std::vector< Scalar2D< std::complex< double > > > v_spec( 4 );
   
-  Scalar2D< std::complex< double > > nl_T_spec( Ny, nOutX );
-  Scalar2D< std::complex< double > > nl_u_spec( Ny, nOutX );
-  Scalar2D< std::complex< double > > nl_v_spec( Ny, nOutX );
+  std::vector< Scalar2D< std::complex< double > > > nl_T_spec( 4 );
+  std::vector< Scalar2D< std::complex< double > > > nl_u_spec( 4 );
+  std::vector< Scalar2D< std::complex< double > > > nl_v_spec( 4 );
+  
+  for( std::size_t i = 0; i < 4; ++i )
+  {
+    T_phys[ i ].setSize( Ny, Nx );
+    u_phys[ i ].setSize( Ny, Nx );
+    v_phys[ i ].setSize( Ny, Nx );
+    T_spec[ i ].setSize( Ny, nOutX );
+    u_spec[ i ].setSize( Ny, nOutX );
+    v_spec[ i ].setSize( Ny, nOutX );
+    nl_T_spec[ i ].setSize( Ny, nOutX );
+    nl_u_spec[ i ].setSize( Ny, nOutX );
+    nl_v_spec[ i ].setSize( Ny, nOutX );
+  }
   
   // Initialize data writer
   io::ioNetCDF testWriter( testWriterFile, Nx, Ny, 'w' );
   
   // Set initial conditions
-  setInitConditions( T_phys, u_phys, v_phys );
+  setInitConditions( T_phys[ 0 ], u_phys[ 0 ], v_phys[ 0 ] );
   
   // Write initial conditions
-  testWriter.write_T( 0, T_phys );
-  testWriter.write_u( 0, u_phys );
-  testWriter.write_v( 0, v_phys );
+  testWriter.write_T( 0, T_phys[ 0 ] );
+  testWriter.write_u( 0, u_phys[ 0 ] );
+  testWriter.write_v( 0, v_phys[ 0 ] );
   
   // Start time step loop
   for( size_t t = 0; t < nSteps; t++)
   {
+    /*
     // Transform: phys --> spec
     fft::fft_r2c_2d( T_phys, T_spec );
     fft::fft_r2c_2d( u_phys, u_spec );
@@ -207,6 +221,7 @@ void TestSolver::runSimulation()
     testWriter.write_v( t + 1, v_phys );
     
     // Increment time pointers
+     */
   }
   
   // End timer
