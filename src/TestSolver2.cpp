@@ -189,39 +189,39 @@ void TestSolver2::runSimulation()
   // Start time step loop
   for( size_t t = 0; t < nSteps; t++)
   {
-    /*
+    
     // Transform: phys --> spec
-    fft::fft_r2c_2d( T_phys, T_spec );
-    fft::fft_r2c_2d( u_phys, u_spec );
-    fft::fft_r2c_2d( v_phys, v_spec );
+    fft::fft_r2c_2d( T_phys[ 0 ], T_spec[ 0 ] );
+    fft::fft_r2c_2d( u_phys[ 0 ], u_spec[ 0 ] );
+    fft::fft_r2c_2d( v_phys[ 0 ], v_spec[ 0 ] );
     
     // Calculate nonlinear terms
-    calcNL( u_phys, v_phys, T_spec, nl_T_spec );
-    calcNL( u_phys, v_phys, u_spec, nl_u_spec );
-    calcNL( u_phys, v_phys, v_spec, nl_v_spec );
+    calcNL( u_phys[ 0 ], v_phys[ 0 ], T_spec[ 0 ], nl_T_spec[ 0 ] );
+    calcNL( u_phys[ 0 ], v_phys[ 0 ], u_spec[ 0 ], nl_u_spec[ 0 ] );
+    calcNL( u_phys[ 0 ], v_phys[ 0 ], v_spec[ 0 ], nl_v_spec[ 0 ] );
     
     // Solve next time step
-    solve( T_spec, nl_T_spec, deltaT, kappa );
-    solve( u_spec, nl_u_spec, deltaT, nu );
-    solve( v_spec, nl_v_spec, deltaT, nu );
+    solve( T_spec[ 0 ], nl_T_spec[ 0 ], deltaT, kappa );
+    solve( u_spec[ 0 ], nl_u_spec[ 0 ], deltaT, nu );
+    solve( v_spec[ 0 ], nl_v_spec[ 0 ], deltaT, nu );
     
     // Transform: spec --> phys
-    fft::fft_c2r_2d( T_spec, T_phys );
-    fft::scaleOutput( T_phys );
+    fft::fft_c2r_2d( T_spec[ 0 ], T_phys[ 0 ] );
+    fft::scaleOutput( T_phys[ 0 ] );
     
-    fft::fft_c2r_2d( u_spec, u_phys );
-    fft::scaleOutput( u_phys );
+    fft::fft_c2r_2d( u_spec[ 0 ], u_phys[ 0 ] );
+    fft::scaleOutput( u_phys[ 0 ] );
     
-    fft::fft_c2r_2d( v_spec, v_phys );
-    fft::scaleOutput( v_phys );
+    fft::fft_c2r_2d( v_spec[ 0 ], v_phys[ 0 ] );
+    fft::scaleOutput( v_phys[ 0 ] );
     
     // Write data to file
-    testWriter.write_T( t + 1, T_phys );
-    testWriter.write_u( t + 1, u_phys );
-    testWriter.write_v( t + 1, v_phys );
+    testWriter.write_T( t + 1, T_phys[ 0 ] );
+    testWriter.write_u( t + 1, u_phys[ 0 ] );
+    testWriter.write_v( t + 1, v_phys[ 0 ] );
     
     // Increment time pointers
-     */
+    
   }
   
   // End timer

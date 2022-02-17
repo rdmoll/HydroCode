@@ -62,9 +62,9 @@ void TestSolver::setInitConditions( Scalar2D< double >& T_phys,
   {
     for( int j = 0; j < Nx; ++j )
     {
-      T_phys( i, j ) = std::sin( j * ( 2.0 * M_PI / Nx ) ); //std::sin( i * ( 2.0 * M_PI / Ny ) ) * std::sin( j * ( 2.0 * M_PI / Nx ) );
-      u_phys( i, j ) = -0.5 * std::sin( i * ( 2.0 * M_PI / Ny ) ); //-0.5 * std::cos( i * ( 2.0 * M_PI / Ny ) );
-      v_phys( i, j ) = 0.0; //0.5 * std::sin( j * ( 2.0 * M_PI / Nx ) );
+      T_phys( i, j ) = std::sin( i * ( 2.0 * M_PI / Ny ) );// * std::sin( j * ( 2.0 * M_PI / Nx ) );
+      u_phys( i, j ) = -0.25 * std::sin( i * ( 2.0 * M_PI / Ny ) );
+      v_phys( i, j ) = 0.75 * std::sin( j * ( 4.0 * M_PI / Nx ) );
     }
   }
   
@@ -98,6 +98,31 @@ void TestSolver::setInitConditions( Scalar2D< double >& T_phys,
   fft::scaleOutput( v_phys );
 }
 
+void TestSolver::setInitConditions( Scalar2D< double >& T_phys,
+                                    Scalar2D< double >& u_phys,
+                                    Scalar2D< double >& v_phys,
+                                    Scalar2D< double >& U_phys )
+{
+}
+
+void TestSolver::calcMeanFlow( Scalar2D< double >& U_phys,
+                               Scalar2D< std::complex< double > >& f_spec,
+                               Scalar2D< std::complex< double > >& out_spec )
+{
+  Scalar2D< std::complex< double > > dfdx_spec( Ny, nOutX );
+  Scalar2D< double > dfdx_phys( Ny, Nx );
+  Scalar2D< double > out_phys( Ny, Nx );
+  
+  mathOps::calcDerivX( f_spec, dfdx_spec, Nx, Ny, Lx );
+  
+  fft::fft_c2r_2d( dfdx_spec, dfdx_phys );
+  fft::scaleOutput( dfdx_phys );
+  
+  out_phys = U_phys * dfdx_phys;
+  
+  fft::fft_r2c_2d( out_phys, out_spec );
+}
+
 void TestSolver::calcNL( Scalar2D< double >& f1_phys,
                          Scalar2D< double >& f2_phys,
                          Scalar2D< std::complex< double > >& f3_spec,
@@ -123,6 +148,40 @@ void TestSolver::calcNL( Scalar2D< double >& f1_phys,
   nl_x_phys = f1_phys * df3dx_phys;
   nl_y_phys = f2_phys * df3dy_phys;
   nl_phys = nl_x_phys + nl_y_phys;
+  
+  fft::fft_r2c_2d( nl_phys, nl_spec );
+}
+
+void TestSolver::calcNL( Scalar2D< double >& f1_phys,
+                         Scalar2D< double >& f2_phys,
+                         Scalar2D< double >& U_phys,
+                         Scalar2D< std::complex< double > >& f3_spec,
+                         Scalar2D< std::complex< double > >& nl_spec )
+{
+  Scalar2D< std::complex< double > > df3dx_spec( Ny, nOutX );
+  Scalar2D< std::complex< double > > df3dy_spec( Ny, nOutX );
+  Scalar2D< double > df3dx_phys( Ny, Nx );
+  Scalar2D< double > df3dy_phys( Ny, Nx );
+  Scalar2D< double > nl_x_phys( Ny, Nx );
+  Scalar2D< double > nl_y_phys( Ny, Nx );
+  Scalar2D< double > nl_phys( Ny, Nx );
+  Scalar2D< double > xFlow_phys( Ny, Nx );
+  
+  mathOps::calcDerivX( f3_spec, df3dx_spec, Nx, Ny, Lx );
+  mathOps::calcDerivY( f3_spec, df3dy_spec, Nx, Ny, Ly );
+  
+  fft::fft_c2r_2d( df3dx_spec, df3dx_phys );
+  fft::scaleOutput( df3dx_phys );
+  
+  fft::fft_c2r_2d( df3dy_spec, df3dy_phys );
+  fft::scaleOutput( df3dy_phys );
+  
+  nl_x_phys = f1_phys * df3dx_phys;
+  nl_y_phys = f2_phys * df3dy_phys;
+  nl_phys = nl_x_phys + nl_y_phys;
+  
+  xFlow_phys = U_phys * df3dx_phys;
+  nl_phys = nl_phys + xFlow_phys;
   
   fft::fft_r2c_2d( nl_phys, nl_spec );
 }
@@ -205,8 +264,6 @@ void TestSolver::runSimulation()
     testWriter.write_T( t + 1, T_phys );
     testWriter.write_u( t + 1, u_phys );
     testWriter.write_v( t + 1, v_phys );
-    
-    // Increment time pointers
   }
   
   // End timer

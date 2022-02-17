@@ -5,6 +5,6 @@ Ny       = 64
 Lx       = 1.0
 Ly       = 1.0
 nu       = 0.02
-kappaT   = 0.05
+kappaT   = 0.02
 kappaC   = 0.01
 dataFile = /Users/ryanmoll/Documents/dev/projects/HydroCode/tests/testSolver.nc

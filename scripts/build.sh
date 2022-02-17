@@ -10,3 +10,6 @@ make -j8
 mkdir xcode
 cd xcode
 cmake -G Xcode ../..
+
+#cd ..
+#cmake --build . --config Release

@@ -30,8 +30,23 @@ public:
                           Scalar2D< double >& u_phys,
                           Scalar2D< double >& v_phys );
   
+  void setInitConditions( Scalar2D< double >& T_phys,
+                          Scalar2D< double >& u_phys,
+                          Scalar2D< double >& v_phys,
+                          Scalar2D< double >& U_phys );
+  
+  void calcMeanFlow( Scalar2D< double >& U_phys,
+                     Scalar2D< std::complex< double > >& f_spec,
+                     Scalar2D< std::complex< double > >& out_spec );
+  
   void calcNL( Scalar2D< double >& f1_phys,
                Scalar2D< double >& f2_phys,
+               Scalar2D< std::complex< double > >& f3_spec,
+               Scalar2D< std::complex< double > >& nl_spec );
+  
+  void calcNL( Scalar2D< double >& f1_phys,
+               Scalar2D< double >& f2_phys,
+               Scalar2D< double >& U_phys,
                Scalar2D< std::complex< double > >& f3_spec,
                Scalar2D< std::complex< double > >& nl_spec );
   

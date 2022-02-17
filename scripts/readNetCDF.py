@@ -79,7 +79,7 @@ if make_movie:
     for i in range(0,256):
         imageFileName ="./images/screen-" + str(i).zfill(4) + ".tif"
         fig = plt.figure()
-        plt.imshow(testSolverDataT[i,:,:])
+        plt.imshow(testSolverDataT[i,:,:], cmap='twilight_shifted')
         fig.savefig(imageFileName)
         print(imageFileName)
 
