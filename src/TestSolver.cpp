@@ -91,11 +91,8 @@ void TestSolver::setInitConditions( Scalar2D< double >& T_phys,
   }
   
   fft::fft_c2r_2d( init_T_spec, T_phys );
-  fft::scaleOutput( T_phys );
   fft::fft_c2r_2d( init_u_spec, u_phys );
-  fft::scaleOutput( u_phys );
   fft::fft_c2r_2d( init_v_spec, v_phys );
-  fft::scaleOutput( v_phys );
 }
 
 void TestSolver::setInitConditions( Scalar2D< double >& T_phys,
@@ -116,7 +113,6 @@ void TestSolver::calcMeanFlow( Scalar2D< double >& U_phys,
   mathOps::calcDerivX( f_spec, dfdx_spec, Nx, Ny, Lx );
   
   fft::fft_c2r_2d( dfdx_spec, dfdx_phys );
-  fft::scaleOutput( dfdx_phys );
   
   out_phys = U_phys * dfdx_phys;
   
@@ -140,10 +136,7 @@ void TestSolver::calcNL( Scalar2D< double >& f1_phys,
   mathOps::calcDerivY( f3_spec, df3dy_spec, Nx, Ny, Ly );
   
   fft::fft_c2r_2d( df3dx_spec, df3dx_phys );
-  fft::scaleOutput( df3dx_phys );
-  
   fft::fft_c2r_2d( df3dy_spec, df3dy_phys );
-  fft::scaleOutput( df3dy_phys );
   
   nl_x_phys = f1_phys * df3dx_phys;
   nl_y_phys = f2_phys * df3dy_phys;
@@ -171,10 +164,7 @@ void TestSolver::calcNL( Scalar2D< double >& f1_phys,
   mathOps::calcDerivY( f3_spec, df3dy_spec, Nx, Ny, Ly );
   
   fft::fft_c2r_2d( df3dx_spec, df3dx_phys );
-  fft::scaleOutput( df3dx_phys );
-  
   fft::fft_c2r_2d( df3dy_spec, df3dy_phys );
-  fft::scaleOutput( df3dy_phys );
   
   nl_x_phys = f1_phys * df3dx_phys;
   nl_y_phys = f2_phys * df3dy_phys;
@@ -252,13 +242,8 @@ void TestSolver::runSimulation()
     
     // Transform: spec --> phys
     fft::fft_c2r_2d( T_spec, T_phys );
-    fft::scaleOutput( T_phys );
-    
     fft::fft_c2r_2d( u_spec, u_phys );
-    fft::scaleOutput( u_phys );
-    
     fft::fft_c2r_2d( v_spec, v_phys );
-    fft::scaleOutput( v_phys );
     
     // Write data to file
     testWriter.write_T( t + 1, T_phys );

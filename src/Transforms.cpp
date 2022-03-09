@@ -57,6 +57,14 @@ void fft_c2r_2d( Scalar2D< std::complex< double > > &cVec, Scalar2D< double > &r
   fftw_execute( plan );
   
   fftw_destroy_plan( plan );
+  
+  for( size_t i = 0; i < N; i++ )
+  {
+    for( size_t j = 0; j < M; j++ )
+    {
+      rVec( i, j ) /= ( N * M );
+    }
+  }
 }
 
 void fft_r2c_1d_thread( Scalar1D< double > &rVec, Scalar1D< std::complex< double > > &cVec )
@@ -83,20 +91,6 @@ void fft_r2c_2d_thread( Scalar2D< double > &rVec, Scalar2D< std::complex< double
 void fft_c2r_2d_thread( Scalar2D< std::complex< double > > &cVec, Scalar2D< double > &rVec )
 {
   
-}
-
-void scaleOutput( Scalar2D< double > &f_phys )
-{
-  int N = static_cast< int >( f_phys.rows() );
-  int M = static_cast< int >( f_phys.cols() );
-  
-  for( size_t i = 0; i < N; i++ )
-  {
-    for( size_t j = 0; j < M; j++ )
-    {
-      f_phys( i, j ) /= ( N * M );
-    }
-  }
 }
 
 } // fft
